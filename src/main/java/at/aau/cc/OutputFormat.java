@@ -28,6 +28,14 @@ public class OutputFormat {
         return writeBrokenLink(link, depth);
     }
 
+    public static String formatRecurringLink(String link, int depth){
+        return writeRecurringLink(link, depth);
+    }
+
+    public static String formatLinkOnly(String link, int depth){
+        return writeLink(link, depth);
+    }
+
 
 
     private static int getOutputLength(WebsiteData websiteData){
@@ -47,6 +55,10 @@ public class OutputFormat {
 
     private static String writeBrokenLink(String link, int depth){
         return "<br>" + "--".repeat(Math.max(1, depth - 1)) + "> broken link to <a>" + link + "</a>";
+    }
+
+    private static String writeRecurringLink(String link, int depth){
+        return "<br>" + "--".repeat(Math.max(1, depth - 1)) + "> <a>" + link + "</a>, already visited";
     }
 
     private static String writeCurrentDepth(int depth){
