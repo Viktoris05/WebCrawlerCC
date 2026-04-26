@@ -50,15 +50,15 @@ public class OutputFormat {
     }
 
     private static String writeLink(String link, int depth){
-        return "<br>" + "--".repeat(Math.max(1, depth - 1)) + "> link to <a>" + link + "</a>";
+        return "<br>" + "-".repeat(2*(depth-1)) + "> link to <a>" + link + "</a>";
     }
 
     private static String writeBrokenLink(String link, int depth){
-        return "<br>" + "--".repeat(Math.max(1, depth - 1)) + "> broken link to <a>" + link + "</a>";
+        return "<br>" + "-".repeat(2*(depth-1)) + "> broken link to <a>" + link + "</a>";
     }
 
     private static String writeRecurringLink(String link, int depth){
-        return "<br>" + "--".repeat(Math.max(1, depth - 1)) + "> <a>" + link + "</a>, already visited";
+        return "<br>" + "-".repeat(2*(depth-1)) + "> <a>" + link + "</a>, already visited";
     }
 
     private static String writeCurrentDepth(int depth){
@@ -66,7 +66,7 @@ public class OutputFormat {
     }
 
     private static String writeHeading(String heading, int depth, int headingTag){
-        return "#".repeat(headingTag) + " " + "--".repeat(Math.max(1, depth - 1)) + "> " + heading;
+        return "#".repeat(headingTag) + " " + "-".repeat(2*(depth-1)) + (((depth)>1) ? "> " : "") + heading;
     }
 
 }

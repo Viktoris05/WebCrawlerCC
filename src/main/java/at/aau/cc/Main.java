@@ -8,15 +8,6 @@ import java.util.Arrays;
 
 public class Main {
 
-//    String link;
-//    String depth;
-//    String domain;
-//
-//    public Main(String link, String depth, String domain) {
-//        this.link = link;
-//        this.depth = depth;
-//        this.domain = domain;
-//    }
 
     public static void main(String[] args) {
         checkArgsLength(args);
@@ -31,10 +22,6 @@ public class Main {
         String[] domains = getDomains(args);
         checkDomains(domains);
 
-        System.out.println("Link: " + link + " Depth: " + depthLimit);
-        System.out.println("Domains: " + Arrays.toString(domains));
-
-
         try {
             Document doc = Jsoup.connect(link).get();
             for (Element e : doc.select("h1")) {
@@ -44,8 +31,13 @@ public class Main {
             throw new RuntimeException(e);
         }
 
+        System.out.println("Link: " + link + " Depth: " + depthLimit);
+        System.out.println("Domains: " + Arrays.toString(domains));
+        System.out.println("START SCANNING");
 
-        //TODO: CALL THE CRAWLER FROM HERE, CREATE NEW CLASS(ES) FOR THE CRAWLER
+        // Crawler start
+        WebCrawler crawler = new WebCrawler(depthLimit, domains);
+        crawler.start(link);
     }
 
 
