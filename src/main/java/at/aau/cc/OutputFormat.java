@@ -1,46 +1,57 @@
 package at.aau.cc;
 
 public class OutputFormat {
-    public static String[] formatLink(WebsiteData websiteData, boolean firstEnty){
+    public static String[] formatLink(WebsiteData websiteData, boolean firstEntry){
+        checkDepth(websiteData.currentDepth(), 1);
+
         String[] output;
 
         int outputLength = getOutputLength(websiteData);
 
         output = new String[outputLength];
 
-        if(firstEnty){
-            output[0] = writeFirstLine(websiteData.getLink());
+        if(firstEntry){
+            output[0] = writeFirstLine(websiteData.link());
         }else{
-            output[0] = writeLink(websiteData.getLink(), websiteData.getCurrentDepth());
+            output[0] = writeLink(websiteData.link(), websiteData.currentDepth());
         }
 
-        output[1] = writeCurrentDepth(websiteData.getCurrentDepth());
+        output[1] = writeCurrentDepth(websiteData.currentDepth());
 
         for(int i = 2; i < outputLength; i++){
             String header = websiteData.getHeader(i - 2);
-            output[i] = writeHeading(header , websiteData.getCurrentDepth(), websiteData.getHeaderTag(i - 2));
+            output[i] = writeHeader(header , websiteData.currentDepth(), websiteData.getHeaderTag(i - 2));
         }
 
         return output;
     }
 
     public static String formatBrokenLink(String link, int depth){
+        checkDepth(depth, 2);
         return writeBrokenLink(link, depth);
     }
 
     public static String formatRecurringLink(String link, int depth){
+        checkDepth(depth, 2);
         return writeRecurringLink(link, depth);
     }
 
     public static String formatLinkOnly(String link, int depth){
+        checkDepth(depth, 2);
         return writeLink(link, depth);
     }
 
 
+    private static void checkDepth(int depth, int minDepth){
+        if(depth < minDepth){
+            throw new IllegalArgumentException("Depth must be greater than zero");
+        }
+    }
+
 
     private static int getOutputLength(WebsiteData websiteData){
         int outputLength = 2; //link + currentDepth
-        outputLength += websiteData.getHeaders().length;
+        outputLength += websiteData.headers().length;
 
         return outputLength;
     }
@@ -65,7 +76,7 @@ public class OutputFormat {
         return "<br>depth: " + depth;
     }
 
-    private static String writeHeading(String heading, int depth, int headingTag){
+    private static String writeHeader(String heading, int depth, int headingTag){
         return "#".repeat(headingTag) + " " + "-".repeat(2*(depth-1)) + (((depth)>1) ? "> " : "") + heading;
     }
 
