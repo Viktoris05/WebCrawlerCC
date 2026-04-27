@@ -12,20 +12,19 @@ public class WebCrawler {
     private final int maxDepth;
     private final UrlValidator validator;
     private final Set<String> visitedUrls;
-
-    // Stack to keep the URLs
     private final Stack<UrlNode> stack;
+    private final MarkdownStorage storage;
 
-    public WebCrawler(int maxDepth, String[] domains) {
+    public WebCrawler(int maxDepth, String[] domains, String outputFile) {
         this.validator = new UrlValidator(domains);
         this.maxDepth = maxDepth;
         this.visitedUrls = new HashSet<>();
         this.stack = new Stack<>();
+        this.storage = new MarkdownStorage(outputFile);
     }
 
     public void start(String startUrl) {
-        // Push the starting URL onto the stack with an initial depth of 1
-        stack.push(new UrlNode(startUrl, 1));
+        if (validator.isValid(startUrl)) stack.push(new UrlNode(startUrl, 1));
 
         // Loop continuously as long as there are URLs left in the stack
         while (!stack.isEmpty()) {
@@ -51,12 +50,13 @@ public class WebCrawler {
                 boolean isFirstEntry = visitedUrls.size() == 1;
                 String[] formattedOutput = OutputFormat.formatLink(data, isFirstEntry);
 
+                storage.writeLines(formattedOutput);
+
                 for (String line : formattedOutput) {
                     System.out.println("\t".repeat(current.depth - 1) + line);
                 }
 
                 if (current.depth < maxDepth) {
-
                     List<String> extractedLinks = LinkExtractor.extract(doc, current.url);
 
                     // Check everything and add to stack
@@ -70,6 +70,7 @@ public class WebCrawler {
             } catch (Exception e) {
                 // Handling broken links
                 String brokenMsg = OutputFormat.formatBrokenLink(current.url, current.depth);
+                storage.writeLine(brokenMsg);
                 System.out.println("\t".repeat(Math.max(0, current.depth - 1)) + brokenMsg);
             }
         }
