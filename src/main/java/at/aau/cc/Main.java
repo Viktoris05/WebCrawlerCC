@@ -44,8 +44,30 @@ public class Main {
 
     private static void checkArgsLength(String[] args){
         if(args.length<3){
-            System.out.println("Usage: java Main <URL> <Depth> <Domain1> <Domain2> ... <DomainN>");
-            System.exit(1);
+            throw new IllegalArgumentException("Wrong number of Arguments. Usage: java Main <URL> <Depth> <Domain1> <Domain2> ... <DomainN>");
+        }
+    }
+
+    private static void checkLink(String link){
+        if(!link.startsWith("http://") && !link.startsWith("https://")){
+            throw new IllegalArgumentException("Invalid link, it must have https or http :// protocol" + link);
+        }
+        if(link.contains(" ") || !link.contains(".")){
+            throw new IllegalArgumentException("Invalid link, it cannot contain spaces or dashes" + link);
+        }
+    }
+
+    private static void checkDepthLimit(int depthLimit){
+        if(depthLimit<1){
+            throw new IllegalArgumentException("Depth limit must be greater than zero");
+        }else if(depthLimit>10){
+            throw new IllegalArgumentException("Depth limit must be less than 10");
+        }
+    }
+
+    private static void checkDomains(String[] domains){
+        for(String domain : domains){
+            checkLink(domain);
         }
     }
 
@@ -69,33 +91,6 @@ public class Main {
         return link;
     }
 
-    private static void checkLink(String link){
-        if(!link.startsWith("http://") && !link.startsWith("https://")){
-            System.out.println("Invalid URL, JSoup needs HTTP or HTTPS protocol: "+link);
-            System.exit(1);
-        }
-        if(link.contains(" ") || !link.contains(".")){
-            System.out.println("Invalid URL: "+link);
-            System.exit(1);
-        }
-    }
-
-    private static void checkDepthLimit(int depthLimit){
-        if(depthLimit<1){
-            System.out.println("Invalid Depth Limit, limit is too low (minimum: 1): "+depthLimit);
-            System.exit(1);
-        }else if(depthLimit>10){
-            System.out.println("Invalid Depth Limit, limit is too big (maximum: 10): "+depthLimit);
-            System.exit(1);
-        }
-    }
-
-    private static String[] getDomains(String[] args){
-        String[] domains = new String[args.length-2];
-        System.arraycopy(args, 2, domains, 0, args.length - 2);
-        return formatDomains(domains);
-    }
-
     private static String[] formatDomains(String[] domains){
         for(int i = 0; i < domains.length; i++){
             try {
@@ -107,9 +102,9 @@ public class Main {
         return domains;
     }
 
-    private static void checkDomains(String[] domains){
-        for(String domain : domains){
-            checkLink(domain);
-        }
+    private static String[] getDomains(String[] args){
+        String[] domains = new String[args.length-2];
+        System.arraycopy(args, 2, domains, 0, args.length - 2);
+        return formatDomains(domains);
     }
 }
