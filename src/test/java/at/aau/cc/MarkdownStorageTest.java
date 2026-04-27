@@ -50,7 +50,7 @@ class MarkdownStorageTest {
 
         var resultList = Files.readAllLines(testFilePath);
         var resultSize = resultList.size();
-        var resultLine = resultList.get(0);
+        var resultLine = resultList.getFirst();
 
         Assertions.assertEquals(1, resultSize);
         Assertions.assertEquals(testSingleLine, resultLine);
