@@ -5,7 +5,7 @@ How to build/run/test:
 ### Option A) (IntelliJ)
 Building and testing remains as usual.<br>
 To run, add an Application configuration that goes as follows:<br>
-<code>URL Depth Daomain1 Domain2 .. DomainN</code>
+<code>URL Depth Domain1 Domain2 .. DomainN</code>
 
 
 ### Option B) (Terminal)
