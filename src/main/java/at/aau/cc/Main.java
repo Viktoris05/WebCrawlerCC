@@ -4,7 +4,6 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public class Main {
 
@@ -12,8 +11,14 @@ public class Main {
     public static void main(String[] args) {
         checkArgsLength(args);
 
-        String link = args[0];
-        checkLink(link);
+        String link;
+        try {
+            link = formatLink(args[0]);
+            checkLink(link);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
 
 
         int depthLimit = Integer.parseInt(args[1]);
@@ -30,12 +35,8 @@ public class Main {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-        System.out.println("Link: " + link + " Depth: " + depthLimit);
-        System.out.println("Domains: " + Arrays.toString(domains));
         System.out.println("START SCANNING");
 
-        // Crawler start
         WebCrawler crawler = new WebCrawler(depthLimit, domains);
         crawler.start(link);
     }
@@ -46,6 +47,26 @@ public class Main {
             System.out.println("Usage: java Main <URL> <Depth> <Domain1> <Domain2> ... <DomainN>");
             System.exit(1);
         }
+    }
+
+    private static String formatLink(String link) throws IOException {
+        if(!link.endsWith("/")){
+            link += "/";
+        }
+        return formatProtocol(link);
+    }
+
+
+    private static String formatProtocol(String link) {
+        if(!link.startsWith("https://") && !link.startsWith("http://")) {
+            try {
+                var Response = Jsoup.connect("https://" + link).followRedirects(true).execute();
+                return Response.url().toString();
+            } catch (final IOException e) {
+                System.out.println("Invalid link, it must have https:// or http:// protocol" + e.getMessage());
+            }
+        }
+        return link;
     }
 
     private static void checkLink(String link){
@@ -72,6 +93,17 @@ public class Main {
     private static String[] getDomains(String[] args){
         String[] domains = new String[args.length-2];
         System.arraycopy(args, 2, domains, 0, args.length - 2);
+        return formatDomains(domains);
+    }
+
+    private static String[] formatDomains(String[] domains){
+        for(int i = 0; i < domains.length; i++){
+            try {
+                domains[i] = formatLink(domains[i]);
+            }catch (IOException e){
+                System.out.println("Invalid Domain: "+domains[i]);
+            }
+        }
         return domains;
     }
 
