@@ -1,44 +1,32 @@
 package at.aau.cc;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-
-import java.io.IOException;
 
 public class Main {
 
-
     public static void main(String[] args) {
-        checkArgsLength(args);
-
-        String link;
         try {
-            link = formatLink(args[0]);
-            checkLink(link);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+            checkArgsLength(args);
 
+            int depthLimit = parseDepth(args[1]);
+            checkDepthLimit(depthLimit);
+            String[] domains = getDomains(args);
 
+            UrlValidator validator = new UrlValidator(domains);
 
-        int depthLimit = Integer.parseInt(args[1]);
-        checkDepthLimit(depthLimit);
-
-        String[] domains = getDomains(args);
-        checkDomains(domains);
-
-        try {
-            Document doc = Jsoup.connect(link).get();
-            for (Element e : doc.select("h1")) {
-                System.out.println(e.text());
+            String startUrl = formatStartLink(args[0]);
+            if (!validator.isValid(startUrl)) {
+                throw new IllegalArgumentException("Invalid initial link: " + startUrl);
             }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        System.out.println("START SCANNING");
 
-        WebCrawler crawler = new WebCrawler(depthLimit, domains);
-        crawler.start(link);
+            System.out.println("START SCANNING");
+
+            WebCrawler crawler = new WebCrawler(depthLimit, domains, "Output.md");
+            crawler.start(startUrl);
+
+        } catch (IllegalArgumentException e) {
+            System.err.println("Invalid arguments: " + e.getMessage());
+        } catch (Exception e) {
+            System.err.println("Unexpected error occurred: " + e.getMessage());
+        }
     }
 
 
@@ -48,63 +36,41 @@ public class Main {
         }
     }
 
-    private static void checkLink(String link){
-        if(!link.startsWith("http://") && !link.startsWith("https://")){
-            throw new IllegalArgumentException("Invalid link, it must have https or http :// protocol" + link);
-        }
-        if(link.contains(" ") || !link.contains(".")){
-            throw new IllegalArgumentException("Invalid link, it cannot contain spaces or dashes" + link);
+    private static int parseDepth(String depthLimit){
+        try {
+            return Integer.parseInt(depthLimit);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Depth limit must be an integer");
         }
     }
 
     private static void checkDepthLimit(int depthLimit){
-        if(depthLimit<1){
-            throw new IllegalArgumentException("Depth limit must be greater than zero");
-        }else if(depthLimit>10){
-            throw new IllegalArgumentException("Depth limit must be less than 10");
+        if(depthLimit<1 || depthLimit>10) {
+            throw new IllegalArgumentException("Depth limit must be between 1 and 10");
         }
     }
 
-    private static void checkDomains(String[] domains){
-        for(String domain : domains){
-            checkLink(domain);
+    private static String normalize(String input) {
+        if (input == null) return "";
+        String cleaned = input.trim();
+
+        if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://")) {
+            cleaned = "https://" + cleaned;
         }
+        return cleaned;
     }
 
-    private static String formatLink(String link) throws IOException {
-        if(!link.endsWith("/")){
-            link += "/";
-        }
-        return formatProtocol(link);
+    private static String formatStartLink(String link) {
+        String normalized = normalize(link);
+        return normalized.endsWith("/") ? normalized : normalized + "/";
     }
 
-
-    private static String formatProtocol(String link) {
-        if(!link.startsWith("https://") && !link.startsWith("http://")) {
-            try {
-                var Response = Jsoup.connect("https://" + link).followRedirects(true).execute();
-                return Response.url().toString();
-            } catch (final IOException e) {
-                System.out.println("Invalid link, it must have https:// or http:// protocol" + e.getMessage());
-            }
-        }
-        return link;
-    }
-
-    private static String[] formatDomains(String[] domains){
-        for(int i = 0; i < domains.length; i++){
-            try {
-                domains[i] = formatLink(domains[i]);
-            }catch (IOException e){
-                System.out.println("Invalid Domain: "+domains[i]);
-            }
+    private static String[] getDomains(String[] args) {
+        String[] domains = new String[args.length - 2];
+        for (int i = 0; i < domains.length; i++) {
+            // For domains only normalize protocol
+            domains[i] = normalize(args[i + 2]);
         }
         return domains;
-    }
-
-    private static String[] getDomains(String[] args){
-        String[] domains = new String[args.length-2];
-        System.arraycopy(args, 2, domains, 0, args.length - 2);
-        return formatDomains(domains);
     }
 }

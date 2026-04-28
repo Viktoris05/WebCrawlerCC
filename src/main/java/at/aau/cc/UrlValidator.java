@@ -13,8 +13,10 @@ public class UrlValidator {
             return false;
         }
 
-        // If domain filters are provided, the URL must contain at least one of the specified domains
-        if (domains != null && domains.length > 0) {
+        if (url.contains(" ") || !url.contains(".")) return false;
+        if (!url.startsWith("http://") && !url.startsWith("https://")) return false;
+
+        if (domains != null && domains.length > 0 ) {
             for (String domain : domains) {
                 if (url.contains(domain)) {
                     return true;
