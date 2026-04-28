@@ -15,17 +15,19 @@ public class Main {
             UrlValidator validator = new UrlValidator(domains);
 
             String startUrl = formatStartLink(args[0]);
-            if (!validator.isValid(startUrl)) {
-                throw new IllegalArgumentException("Invalid initial link: " + startUrl);
-            }
 
             if(!validator.isValidDomains()){
                 throw new IllegalArgumentException("Invalid domains: " + Arrays.toString(domains));
             }
 
+            if (!validator.isValid(startUrl)) {
+                throw new IllegalArgumentException("Invalid initial link: " + startUrl);
+            }
+
             if(!validator.containedWithinDomains(startUrl)){
                 throw new IllegalArgumentException("Initial link (" + startUrl + ") not within Domains: " + Arrays.toString(domains));
             }
+
 
             System.out.println("START SCANNING");
 

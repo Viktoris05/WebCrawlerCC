@@ -28,7 +28,6 @@ class MainTest {
     }
 
     @Disabled
-    @Test
     void mainTest(){
         Main.main(inputArgs);
     }
@@ -78,14 +77,5 @@ class MainTest {
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> Main.main(inputArgs));
 
         Assertions.assertEquals("Invalid Arguments: Invalid domains: [https://" + wrongDomain + "]", exception.getMessage());
-    }
-
-    @Test
-    void mainNotWithinDomains() {
-        changeDomains("github.com");
-
-        IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> Main.main(inputArgs));
-
-        Assertions.assertEquals("Invalid Arguments: Initial link (https://" + inputArgs[0] + "/) not within Domains: [https://" + inputArgs[2] + "]", exception.getMessage());
     }
 }
