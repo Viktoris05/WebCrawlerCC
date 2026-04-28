@@ -1,6 +1,11 @@
 # WebCrawler CleanCode
 ## AAU Klagenfurt - Clean Code 
 
+You can input the links and domains (regardless of the option chosen) with or without the http:// or https://, however do so in a unified manner (please don't mix https:// and no https://).
+<br><strong>Input link must be in the specified domains to be searched.</strong>
+<br>Example: <code>github.com 2 github.com</code> or <code>https://github.com/ 2 https://github.com/</code> are both valid input options.
+<br>
+
 How to build/run/test:
 ### Option A) (IntelliJ)
 Building and testing remains as usual.<br>
