@@ -1,5 +1,7 @@
 package at.aau.cc;
 
+import java.util.Arrays;
+
 public class Main {
 
     public static void main(String[] args) {
@@ -13,9 +15,19 @@ public class Main {
             UrlValidator validator = new UrlValidator(domains);
 
             String startUrl = formatStartLink(args[0]);
+
+            if(!validator.isValidDomains()){
+                throw new IllegalArgumentException("Invalid domains: " + Arrays.toString(domains));
+            }
+
             if (!validator.isValid(startUrl)) {
                 throw new IllegalArgumentException("Invalid initial link: " + startUrl);
             }
+
+            if(!validator.containedWithinDomains(startUrl)){
+                throw new IllegalArgumentException("Initial link (" + startUrl + ") not within Domains: " + Arrays.toString(domains));
+            }
+
 
             System.out.println("START SCANNING");
 
@@ -23,7 +35,7 @@ public class Main {
             crawler.start(startUrl);
 
         } catch (IllegalArgumentException e) {
-            System.err.println("Invalid arguments: " + e.getMessage());
+            throw new IllegalArgumentException("Invalid Arguments: " + e.getMessage());
         } catch (Exception e) {
             System.err.println("Unexpected error occurred: " + e.getMessage());
         }
@@ -50,7 +62,7 @@ public class Main {
         }
     }
 
-    private static String normalize(String input) {
+    private static String normalizeProtocol(String input) {
         if (input == null) return "";
         String cleaned = input.trim();
 
@@ -61,15 +73,14 @@ public class Main {
     }
 
     private static String formatStartLink(String link) {
-        String normalized = normalize(link);
+        String normalized = normalizeProtocol(link);
         return normalized.endsWith("/") ? normalized : normalized + "/";
     }
 
     private static String[] getDomains(String[] args) {
         String[] domains = new String[args.length - 2];
         for (int i = 0; i < domains.length; i++) {
-            // For domains only normalize protocol
-            domains[i] = normalize(args[i + 2]);
+            domains[i] = normalizeProtocol(args[i + 2]);
         }
         return domains;
     }

@@ -3,7 +3,6 @@ package at.aau.cc;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
 
 class OutputFormatTest {
 
@@ -106,7 +105,7 @@ class OutputFormatTest {
 
     @Test
     void formatLinkOnlyWrongDepth() {
-        createTestLink(1);
+        createTestLink(0);
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> OutputFormat.formatLinkOnly(link, depth));
 
