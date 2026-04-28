@@ -27,17 +27,17 @@ public class OutputFormat {
     }
 
     public static String formatBrokenLink(String link, int depth){
-        checkDepth(depth, 2);
+        checkDepth(depth, 1);
         return writeBrokenLink(link, depth);
     }
 
     public static String formatRecurringLink(String link, int depth){
-        checkDepth(depth, 2);
+        checkDepth(depth, 1);
         return writeRecurringLink(link, depth);
     }
 
     public static String formatLinkOnly(String link, int depth){
-        checkDepth(depth, 2);
+        checkDepth(depth, 1);
         return writeLink(link, depth);
     }
 
