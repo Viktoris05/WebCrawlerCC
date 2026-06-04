@@ -15,16 +15,12 @@ public class LinkExtractor {
     public static List<String> extract(Document doc, String currentUrl) {
         List<String> foundUrls = new ArrayList<>();
 
-        // Find all <a> tags that contain a href attribute
         Elements htmlUrls = doc.select("a[href]");
         for (Element element : htmlUrls) {
             foundUrls.add(element.attr("abs:href"));
         }
 
-        // Search in buttons
         Elements buttons = doc.select("button[onclick]");
-
-        // Making a pattern that searches for location.href = '' or ""
 
         // \\s*=\\s* to check for spaces (href='' and href = '')
         // ['\"] - searches for '' or ""
@@ -52,7 +48,6 @@ public class LinkExtractor {
                 foundUrls.add(extractedUrl);
             }
         }
-
         return foundUrls;
     }
 }

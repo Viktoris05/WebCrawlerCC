@@ -8,7 +8,6 @@ public class UrlValidator {
     }
 
     public boolean isValid(String url) {
-        // Exclude empty strings, anchors (with #), email links, and JavaScript actions
         if (url == null || url.isEmpty() || url.contains("#") || url.startsWith("mailto:") || url.startsWith("javascript:")) {
             return false;
         }
@@ -16,7 +15,18 @@ public class UrlValidator {
         if (url.contains(" ") || !url.contains(".")) return false;
         if (!url.startsWith("http://") && !url.startsWith("https://")) return false;
 
-        if (domains != null && domains.length > 0 ) {
+        return containedWithinDomains(url);
+    }
+
+    public boolean isValidDomains(){
+        for(String domain : domains){
+            if(!isValid(domain)) return false;
+        }
+        return true;
+    }
+
+    public boolean containedWithinDomains(String url) {
+        if (domains != null && domains.length > 0) {
             for (String domain : domains) {
                 if (url.contains(domain)) {
                     return true;

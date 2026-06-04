@@ -2,7 +2,7 @@ package at.aau.cc;
 
 public class OutputFormat {
     public static String[] formatLink(WebsiteData websiteData, boolean firstEntry){
-        checkDepth(websiteData.currentDepth(), 1);
+        checkDepth(websiteData.currentDepth());
 
         String[] output;
 
@@ -27,23 +27,23 @@ public class OutputFormat {
     }
 
     public static String formatBrokenLink(String link, int depth){
-        checkDepth(depth, 2);
+        checkDepth(depth);
         return writeBrokenLink(link, depth);
     }
 
     public static String formatRecurringLink(String link, int depth){
-        checkDepth(depth, 2);
+        checkDepth(depth);
         return writeRecurringLink(link, depth);
     }
 
     public static String formatLinkOnly(String link, int depth){
-        checkDepth(depth, 2);
+        checkDepth(depth);
         return writeLink(link, depth);
     }
 
 
-    private static void checkDepth(int depth, int minDepth){
-        if(depth < minDepth){
+    private static void checkDepth(int depth){
+        if(depth < 1){
             throw new IllegalArgumentException("Depth must be greater than zero");
         }
     }
