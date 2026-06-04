@@ -3,6 +3,9 @@ package at.aau.cc;
 import java.util.Arrays;
 
 public class Main {
+    private static final int MIN_CRAWL_DEPTH = 1;
+    private static final int MAX_CRAWL_DEPTH = 10;
+    private static final int MIN_ARGS_LENGTH = 3;
 
     public static void main(String[] args) {
         try {
@@ -14,11 +17,8 @@ public class Main {
 
             UrlValidator validator = new UrlValidator(domains);
 
-            String startUrl = formatStartLink(args[0]);
-
-            if(!validator.isValidDomains()){
-                throw new IllegalArgumentException("Invalid domains: " + Arrays.toString(domains));
-            }
+            String normalizedUrl = normalize(args[0]);
+            String startUrl = appendTrailingSlash(normalizedUrl);
 
             if (!validator.isValid(startUrl)) {
                 throw new IllegalArgumentException("Invalid initial link: " + startUrl);
@@ -43,7 +43,7 @@ public class Main {
 
 
     private static void checkArgsLength(String[] args){
-        if(args.length<3){
+        if(args.length < MIN_ARGS_LENGTH){
             throw new IllegalArgumentException("Wrong number of Arguments. Usage: java Main <URL> <Depth> <Domain1> <Domain2> ... <DomainN>");
         }
     }
@@ -57,8 +57,8 @@ public class Main {
     }
 
     private static void checkDepthLimit(int depthLimit){
-        if(depthLimit<1 || depthLimit>10) {
-            throw new IllegalArgumentException("Depth limit must be between 1 and 10");
+        if(depthLimit < MIN_CRAWL_DEPTH || depthLimit > MAX_CRAWL_DEPTH) {
+            throw new IllegalArgumentException("Depth limit must be between " + MIN_CRAWL_DEPTH + " and " + MAX_CRAWL_DEPTH);
         }
     }
 
@@ -72,9 +72,9 @@ public class Main {
         return cleaned;
     }
 
-    private static String formatStartLink(String link) {
-        String normalized = normalizeProtocol(link);
-        return normalized.endsWith("/") ? normalized : normalized + "/";
+    private static String appendTrailingSlash(String link) {
+        if (link == null || link.isEmpty()) return link;
+        return link.endsWith("/") ? link : link + "/";
     }
 
     private static String[] getDomains(String[] args) {

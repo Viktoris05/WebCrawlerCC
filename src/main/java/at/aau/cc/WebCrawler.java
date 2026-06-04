@@ -24,50 +24,81 @@ public class WebCrawler {
     }
 
     public void start(String startUrl) {
-        if (validator.isValid(startUrl)) stack.push(new UrlNode(startUrl, 1));
+        pushIfValid(startUrl, 1);
 
         while (!stack.isEmpty()) {
-            UrlNode current = stack.pop();
+            process(stack.pop());
+        }
 
-            if (visitedUrls.contains(current.url)) {
-                continue;
-            }
+    }
 
-            visitedUrls.add(current.url);
+    public void process(UrlNode current){
+        if (!isVisited(current)) {
+            markVisited(current);
 
-            // Console output for visual tracking
-            System.out.println("\t".repeat(current.depth-1) + "Reading URL: " + current.url + " | Depth: " + current.depth);
-
+            printProgress(current);
             try {
-                // Check if the link is "alive" and download the document
+                // HTTP Fetching
                 Document doc = Jsoup.connect(current.url).get();
-                String[][] headers = HeaderExtractor.extractHeaders(doc);
 
-                WebsiteData data = new WebsiteData(current.url, current.depth, headers);
-
-                boolean isFirstEntry = visitedUrls.size() == 1;
-                String[] formattedOutput = OutputFormat.formatLink(data, isFirstEntry);
-
-                storage.writeLines(formattedOutput);
-
+                processAndSaveData(doc, current);
 
                 if (current.depth < maxDepth) {
-                    List<String> extractedLinks = LinkExtractor.extract(doc, current.url);
-
-                    for (String nextUrl : extractedLinks) {
-                        if (validator.isValid(nextUrl) && !visitedUrls.contains(nextUrl)) {
-                            stack.push(new UrlNode(nextUrl, current.depth + 1));
-                        }
-                    }
+                    enqueueChildLinks(doc, current);
                 }
 
             } catch (Exception e) {
-                String brokenMsg = OutputFormat.formatBrokenLink(current.url, current.depth);
-                storage.writeLine(brokenMsg);
+                handleBrokenLink(current);
             }
         }
     }
 
+    private void pushIfValid(String url, int depth) {
+        if (validator.isValid(url) && !visitedUrls.contains(url)) {
+            stack.push(new UrlNode(url, depth));
+        }
+    }
+
+    private boolean isVisited(UrlNode node) {
+        return visitedUrls.contains(node.url);
+    }
+
+    private void markVisited(UrlNode node) {
+        visitedUrls.add(node.url);
+    }
+
+    private void printProgress(UrlNode current) {
+        System.out.println("\t".repeat(current.depth - 1) + "Reading URL: " + current.url + " | Depth: " + current.depth);
+    }
+
+    private void processAndSaveData(Document doc, UrlNode current) {
+        // Extraction
+        String[][] headers = HeaderExtractor.extractHeaders(doc);
+        WebsiteData data = new WebsiteData(current.url, current.depth, headers);
+
+        // Formating and Saving
+        boolean isFirstEntry = visitedUrls.size() == 1;
+        String[] formattedOutput = OutputFormat.formatLink(data, isFirstEntry);
+        storage.writeLines(formattedOutput);
+
+        // Console Output
+        for (String line : formattedOutput) {
+            System.out.println("\t".repeat(current.depth - 1) + line);
+        }
+    }
+
+    private void enqueueChildLinks(Document doc, UrlNode current) {
+        List<String> extractedLinks = LinkExtractor.extract(doc, current.url);
+        for (String nextUrl : extractedLinks) {
+            pushIfValid(nextUrl, current.depth + 1);
+        }
+    }
+
+    private void handleBrokenLink(UrlNode current) {
+        String brokenMsg = OutputFormat.formatBrokenLink(current.url, current.depth);
+        storage.writeLine(brokenMsg);
+        System.out.println("\t".repeat(Math.max(0, current.depth - 1)) + brokenMsg);
+    }
 
     // Inner class to link a URL string with its current depth level
     private static class UrlNode {
