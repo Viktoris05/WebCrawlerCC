@@ -13,9 +13,14 @@ public class Main {
             checkDepthLimit(depthLimit);
             String[] domains = getDomains(args);
 
+            UrlValidator validator = new UrlValidator(domains);
 
             String normalizedUrl = normalize(args[0]);
             String startUrl = appendTrailingSlash(normalizedUrl);
+
+            if (!validator.isValid(startUrl)) {
+                throw new IllegalArgumentException("Invalid initial link: " + startUrl);
+            }
 
             System.out.println("START SCANNING");
 
@@ -68,7 +73,7 @@ public class Main {
     private static String[] getDomains(String[] args) {
         String[] domains = new String[args.length - 2];
         for (int i = 0; i < domains.length; i++) {
-            // For domains - only normalize protocol
+            // For domains only normalize protocol
             domains[i] = normalize(args[i + 2]);
         }
         return domains;

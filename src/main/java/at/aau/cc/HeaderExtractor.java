@@ -6,7 +6,6 @@ import org.jsoup.select.Elements;
 
 public class HeaderExtractor {
 
-    // Gets full Document and returns all headers
     public static String[][] extractHeaders(Document doc) {
         Elements headerElements = doc.select("h1, h2, h3, h4, h5, h6");
         String[][] headers = new String[headerElements.size()][2];
