@@ -5,7 +5,7 @@ public record WebsiteData(String link, int currentDepth, String[][] headers) {
         return headers[index][0];
     }
 
-    public int getHeaderTag(int header) {
-        return Integer.parseInt(headers[header][1]);
+    public int getHeaderTag(int index) {
+        return Integer.parseInt(headers[index][1]);
     }
 }
