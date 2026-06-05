@@ -16,12 +16,13 @@ public class LinkExtractor {
         List<String> foundUrls = new ArrayList<>();
 
         // Find all <a> tags that contain a href attribute
-        Elements htmlUrls = doc.select("a[href]");
-        for (Element element : htmlUrls) {
+        Elements anchorTags = doc.select("a[href]");
+        for (Element element : anchorTags) {
             foundUrls.add(element.attr("abs:href"));
         }
 
-        // Search in buttons
+        // Extract URLs from interactive buttons using JavaScript redirects
+        // Modern websites often use button components for navigation instead of standard anchor tags.
         Elements buttons = doc.select("button[onclick]");
 
         // Making a pattern that searches for location.href = '' or ""

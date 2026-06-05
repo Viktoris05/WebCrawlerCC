@@ -13,14 +13,10 @@ public class Main {
             checkDepthLimit(depthLimit);
             String[] domains = getDomains(args);
 
-            UrlValidator validator = new UrlValidator(domains);
 
             String normalizedUrl = normalize(args[0]);
             String startUrl = appendTrailingSlash(normalizedUrl);
 
-            if (!validator.isValid(startUrl)) {
-                throw new IllegalArgumentException("Invalid initial link: " + startUrl);
-            }
 
             System.out.println("START SCANNING");
 
