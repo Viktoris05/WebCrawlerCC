@@ -13,7 +13,6 @@ public class Main {
             checkDepthLimit(depthLimit);
             String[] domains = getDomains(args);
 
-            UrlValidator validator = new UrlValidator(domains);
 
             String normalizedUrl = normalize(args[0]);
             String startUrl = appendTrailingSlash(normalizedUrl);
