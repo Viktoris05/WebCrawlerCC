@@ -15,12 +15,17 @@ public class LinkExtractor {
     public static List<String> extract(Document doc, String currentUrl) {
         List<String> foundUrls = new ArrayList<>();
 
-        Elements htmlUrls = doc.select("a[href]");
-        for (Element element : htmlUrls) {
+        // Find all <a> tags that contain a href attribute
+        Elements anchorTags = doc.select("a[href]");
+        for (Element element : anchorTags) {
             foundUrls.add(element.attr("abs:href"));
         }
 
+        // Extract URLs from interactive buttons using JavaScript redirects
+        // Modern websites often use button components for navigation instead of standard anchor tags.
         Elements buttons = doc.select("button[onclick]");
+
+        // Making a pattern that searches for location.href = '' or ""
 
         // \\s*=\\s* to check for spaces (href='' and href = '')
         // ['\"] - searches for '' or ""
@@ -48,6 +53,7 @@ public class LinkExtractor {
                 foundUrls.add(extractedUrl);
             }
         }
+
         return foundUrls;
     }
 }

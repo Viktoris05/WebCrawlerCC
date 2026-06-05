@@ -32,7 +32,7 @@ public class WebCrawler {
 
     }
 
-    public void process(UrlNode current){
+    private void process(UrlNode current){
         if (!isVisited(current)) {
             markVisited(current);
 

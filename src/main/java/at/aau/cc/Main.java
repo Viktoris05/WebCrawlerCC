@@ -1,7 +1,5 @@
 package at.aau.cc;
 
-import java.util.Arrays;
-
 public class Main {
     private static final int MIN_CRAWL_DEPTH = 1;
     private static final int MAX_CRAWL_DEPTH = 10;
@@ -15,18 +13,9 @@ public class Main {
             checkDepthLimit(depthLimit);
             String[] domains = getDomains(args);
 
-            UrlValidator validator = new UrlValidator(domains);
 
             String normalizedUrl = normalize(args[0]);
             String startUrl = appendTrailingSlash(normalizedUrl);
-
-            if (!validator.isValid(startUrl)) {
-                throw new IllegalArgumentException("Invalid initial link: " + startUrl);
-            }
-
-            if(!validator.containedWithinDomains(startUrl)){
-                throw new IllegalArgumentException("Initial link (" + startUrl + ") not within Domains: " + Arrays.toString(domains));
-            }
 
 
             System.out.println("START SCANNING");
@@ -35,7 +24,7 @@ public class Main {
             crawler.start(startUrl);
 
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("Invalid Arguments: " + e.getMessage());
+            System.err.println("Invalid arguments: " + e.getMessage());
         } catch (Exception e) {
             System.err.println("Unexpected error occurred: " + e.getMessage());
         }
@@ -62,7 +51,7 @@ public class Main {
         }
     }
 
-    private static String normalizeProtocol(String input) {
+    private static String normalize(String input) {
         if (input == null) return "";
         String cleaned = input.trim();
 
@@ -80,7 +69,8 @@ public class Main {
     private static String[] getDomains(String[] args) {
         String[] domains = new String[args.length - 2];
         for (int i = 0; i < domains.length; i++) {
-            domains[i] = normalizeProtocol(args[i + 2]);
+            // For domains only normalize protocol
+            domains[i] = normalize(args[i + 2]);
         }
         return domains;
     }
