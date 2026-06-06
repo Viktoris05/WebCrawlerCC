@@ -2,6 +2,7 @@ package at.aau.cc;
 
 
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -9,13 +10,17 @@ import java.util.regex.Pattern;
 
 public class LinkExtractor {
 
-    public static List<String> extract(WebPage doc, String currentUrl) {
-        List<String> foundUrls = new ArrayList<>();
+    public static List<URI> extract(WebPage doc, URI currentUrl) {
+        List<URI> foundUrls = new ArrayList<>();
 
         // Find all <a> tags that contain a href attribute
         List<WebElement> anchorTags = doc.select("a[href]");
         for (WebElement element : anchorTags) {
-            foundUrls.add(element.attr("abs:href"));
+            try {
+                foundUrls.add(new URI(element.attr("abs:href")));
+            } catch (URISyntaxException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         // Extract URLs from interactive buttons using JavaScript redirects
@@ -35,18 +40,19 @@ public class LinkExtractor {
 
             if (matcher.find()) {
                 // group(1) - is anything in '' or ""
-                String extractedUrl = matcher.group(1);
+                //String extractedUrl = matcher.group(1);
+                URI extractedUrl = currentUrl.resolve(matcher.group(1));
 
                 // if the link is not inside, like /main.html
-                if (!extractedUrl.startsWith("http")) {
-                    try {
-                        // Making the url absolute
-                        extractedUrl = URI.create(currentUrl).resolve(extractedUrl).toString();
-                    } catch (Exception e) {
-                        foundUrls.add(extractedUrl);
-                        continue;
-                    }
-                }
+//                if (!extractedUrl.isAbsolute()) {
+//                    try {
+//                        // Making the url absolute
+//                        extractedUrl = URI.create(currentUrl).resolve(extractedUrl);
+//                    } catch (Exception e) {
+//                        foundUrls.add(extractedUrl);
+//                        continue;
+//                    }
+//                }
                 foundUrls.add(extractedUrl);
             }
         }

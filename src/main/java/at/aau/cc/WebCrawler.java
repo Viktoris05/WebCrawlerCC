@@ -1,5 +1,6 @@
 package at.aau.cc;
 
+import java.net.URI;
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
@@ -8,7 +9,7 @@ import java.util.Stack;
 public class WebCrawler {
     private final int maxDepth;
     private final UrlValidator validator;
-    private final Set<String> visitedUrls;
+    private final Set<URI> visitedUrls;
     private final Stack<UrlNode> stack;
     private final Storage storage;
     private final PageFetcher fetcher;
@@ -22,7 +23,7 @@ public class WebCrawler {
         this.stack = new Stack<>();
     }
 
-    public void start(String startUrl) {
+    public void start(URI startUrl) {
         pushIfValid(startUrl, 1);
 
         while (!stack.isEmpty()) {
@@ -57,8 +58,8 @@ public class WebCrawler {
         }
     }
 
-    private void pushIfValid(String url, int depth) {
-        if (validator.isValid(url) && !visitedUrls.contains(url)) {
+    private void pushIfValid(URI url, int depth) {
+        if (/*validator.isValid(url) &&*/ !visitedUrls.contains(url)) {
             stack.push(new UrlNode(url, depth));
         }
     }
@@ -92,8 +93,8 @@ public class WebCrawler {
     }
 
     private void enqueueChildLinks(WebPage doc, UrlNode current) {
-        List<String> extractedLinks = LinkExtractor.extract(doc, current.url);
-        for (String nextUrl : extractedLinks) {
+        List<URI> extractedLinks = LinkExtractor.extract(doc, current.url);
+        for (URI nextUrl : extractedLinks) {
             pushIfValid(nextUrl, current.depth + 1);
         }
     }
@@ -106,10 +107,10 @@ public class WebCrawler {
 
     // Inner class to link a URL string with its current depth level
     private static class UrlNode {
-        String url;
+        URI url;
         int depth;
 
-        UrlNode(String url, int depth) {
+        UrlNode(URI url, int depth) {
             this.url = url;
             this.depth = depth;
         }

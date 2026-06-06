@@ -1,5 +1,7 @@
 package at.aau.cc;
 
+import java.net.URI;
+
 public class Main {
     private static final int MIN_CRAWL_DEPTH = 1;
     private static final int MAX_CRAWL_DEPTH = 10;
@@ -14,8 +16,13 @@ public class Main {
             String[] domains = getDomains(args);
 
 
-            String normalizedUrl = normalize(args[0]);
-            String startUrl = appendTrailingSlash(normalizedUrl);
+            //String normalizedUrl = normalizeURL(args[0]);
+            //String startUrl = appendTrailingSlash(args[0]);
+
+            //String inputLink = args[0];
+            URI startUrl = new URI("https://" + args[0].trim());
+            //startUrl = normalizeURL(startUrl);
+
 
 
             System.out.println("START SCANNING");
@@ -28,9 +35,9 @@ public class Main {
             crawler.start(startUrl);
 
         } catch (IllegalArgumentException e) {
-            System.err.println("Invalid arguments: " + e.getMessage());
-        } catch (Exception e) {
-            System.err.println("Unexpected error occurred: " + e.getMessage());
+            throw new IllegalArgumentException("Invalid Arguments: " + e.getMessage());
+        } catch (Exception f) {
+            System.err.println("Unexpected error occurred: " + f.getMessage());
         }
     }
 
@@ -55,26 +62,28 @@ public class Main {
         }
     }
 
-    private static String normalize(String input) {
-        if (input == null) return "";
-        String cleaned = input.trim();
+//    private static String normalizeURL(String input) throws URISyntaxException {
+//        if (input == null) return null;
+//        if(input.getProtocol() == null) {
+//            try {
+//                input = new URI("https://" + input).toURL();
+//            } catch (MalformedURLException e) {
+//                throw new RuntimeException(e);
+//            }
+//        }
+//        return input;
+//    }
 
-        if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://")) {
-            cleaned = "https://" + cleaned;
-        }
-        return cleaned;
-    }
-
-    private static String appendTrailingSlash(String link) {
-        if (link == null || link.isEmpty()) return link;
-        return link.endsWith("/") ? link : link + "/";
-    }
+//    private static String appendTrailingSlash(String link) {
+//        if (link == null || link.isEmpty()) return link;
+//        return link.endsWith("/") ? link : link + "/";
+//    }
 
     private static String[] getDomains(String[] args) {
         String[] domains = new String[args.length - 2];
         for (int i = 0; i < domains.length; i++) {
             // For domains only normalize protocol
-            domains[i] = normalize(args[i + 2]);
+            //domains[i] = normalizeURL(args[i + 2]);
         }
         return domains;
     }

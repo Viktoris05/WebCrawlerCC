@@ -1,5 +1,7 @@
 package at.aau.cc;
 
+import java.net.URI;
+
 public interface PageFetcher {
-    WebPage fetch(String url) throws CrawlException;
+    WebPage fetch(URI url) throws CrawlException;
 }
