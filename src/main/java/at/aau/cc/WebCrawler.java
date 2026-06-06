@@ -1,8 +1,5 @@
 package at.aau.cc;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-
 import java.util.List;
 import java.util.HashSet;
 import java.util.Set;
@@ -13,14 +10,16 @@ public class WebCrawler {
     private final UrlValidator validator;
     private final Set<String> visitedUrls;
     private final Stack<UrlNode> stack;
-    private final MarkdownStorage storage;
+    private final Storage storage;
+    private final PageFetcher fetcher;
 
-    public WebCrawler(int maxDepth, String[] domains, String outputFile) {
-        this.validator = new UrlValidator(domains);
+    public WebCrawler(int maxDepth, UrlValidator validator, Storage storage, PageFetcher fetcher) {
         this.maxDepth = maxDepth;
+        this.validator = validator;
+        this.storage = storage;
+        this.fetcher = fetcher;
         this.visitedUrls = new HashSet<>();
         this.stack = new Stack<>();
-        this.storage = new MarkdownStorage(outputFile);
     }
 
     public void start(String startUrl) {
@@ -38,17 +37,22 @@ public class WebCrawler {
 
             printProgress(current);
             try {
-                // HTTP Fetching
-                Document doc = Jsoup.connect(current.url).get();
-
+                WebPage doc = fetcher.fetch(current.url);
                 processAndSaveData(doc, current);
-
                 if (current.depth < maxDepth) {
                     enqueueChildLinks(doc, current);
                 }
-
-            } catch (Exception e) {
-                handleBrokenLink(current);
+            } catch (OfflineException e) {
+                // If offline, inform the user, log it to the report, and terminate crawling to prevent useless retries
+                handleOfflineError(current, e);
+                System.err.println("\n[CRITICAL] Crawling aborted completely: The system is offline. Check your internet connection.");
+                stack.clear();
+            } catch (PageHttpException e) {
+                handleHttpError(current, e);
+            } catch (CrawlTimeoutException e) {
+                handleTimeoutError(current, e);
+            } catch (CrawlException e) {
+                handleGenericCrawlError(current, e);
             }
         }
     }
@@ -71,7 +75,7 @@ public class WebCrawler {
         System.out.println("\t".repeat(current.depth - 1) + "Reading URL: " + current.url + " | Depth: " + current.depth);
     }
 
-    private void processAndSaveData(Document doc, UrlNode current) {
+    private void processAndSaveData(WebPage doc, UrlNode current) {
         // Extraction
         String[][] headers = HeaderExtractor.extractHeaders(doc);
         WebsiteData data = new WebsiteData(current.url, current.depth, headers);
@@ -87,7 +91,7 @@ public class WebCrawler {
         }
     }
 
-    private void enqueueChildLinks(Document doc, UrlNode current) {
+    private void enqueueChildLinks(WebPage doc, UrlNode current) {
         List<String> extractedLinks = LinkExtractor.extract(doc, current.url);
         for (String nextUrl : extractedLinks) {
             pushIfValid(nextUrl, current.depth + 1);
@@ -109,5 +113,29 @@ public class WebCrawler {
             this.url = url;
             this.depth = depth;
         }
+    }
+
+    private void handleOfflineError(UrlNode current, OfflineException e) {
+        String errMsg = OutputFormat.formatOfflineError(current.url, current.depth);
+        storage.writeLine(errMsg);
+        System.out.println("\t".repeat(Math.max(0, current.depth - 1)) + errMsg);
+    }
+
+    private void handleHttpError(UrlNode current, PageHttpException e) {
+        String errMsg = OutputFormat.formatHttpError(current.url, current.depth, e.getStatusCode());
+        storage.writeLine(errMsg);
+        System.out.println("\t".repeat(Math.max(0, current.depth - 1)) + errMsg);
+    }
+
+    private void handleTimeoutError(UrlNode current, CrawlTimeoutException e) {
+        String errMsg = OutputFormat.formatTimeoutError(current.url, current.depth);
+        storage.writeLine(errMsg);
+        System.out.println("\t".repeat(Math.max(0, current.depth - 1)) + errMsg);
+    }
+
+    private void handleGenericCrawlError(UrlNode current, CrawlException e) {
+        String errMsg = OutputFormat.formatBrokenLink(current.url, current.depth);
+        storage.writeLine(errMsg + " (Reason: " + e.getMessage() + ")");
+        System.out.println("\t".repeat(Math.max(0, current.depth - 1)) + errMsg);
     }
 }

@@ -20,7 +20,11 @@ public class Main {
 
             System.out.println("START SCANNING");
 
-            WebCrawler crawler = new WebCrawler(depthLimit, domains, "Output.md");
+            UrlValidator validator = new UrlValidator(domains);
+            Storage storage = new MarkdownStorage("Output.md");
+            PageFetcher fetcher = new JsoupPageFetcher();
+
+            WebCrawler crawler = new WebCrawler(depthLimit, validator, storage, fetcher);
             crawler.start(startUrl);
 
         } catch (IllegalArgumentException e) {
