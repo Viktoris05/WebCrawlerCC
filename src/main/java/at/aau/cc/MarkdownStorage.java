@@ -4,7 +4,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 
-public class MarkdownStorage {
+public class MarkdownStorage implements Storage {
     private final String filePath;
 
     public MarkdownStorage(String filePath) {

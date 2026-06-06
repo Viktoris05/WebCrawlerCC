@@ -1,8 +1,5 @@
 package at.aau.cc;
 
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -12,18 +9,18 @@ import java.util.regex.Pattern;
 
 public class LinkExtractor {
 
-    public static List<String> extract(Document doc, String currentUrl) {
+    public static List<String> extract(WebPage doc, String currentUrl) {
         List<String> foundUrls = new ArrayList<>();
 
         // Find all <a> tags that contain a href attribute
-        Elements anchorTags = doc.select("a[href]");
-        for (Element element : anchorTags) {
+        List<WebElement> anchorTags = doc.select("a[href]");
+        for (WebElement element : anchorTags) {
             foundUrls.add(element.attr("abs:href"));
         }
 
         // Extract URLs from interactive buttons using JavaScript redirects
         // Modern websites often use button components for navigation instead of standard anchor tags.
-        Elements buttons = doc.select("button[onclick]");
+        List<WebElement> buttons = doc.select("button[onclick]");
 
         // Making a pattern that searches for location.href = '' or ""
 
@@ -32,7 +29,7 @@ public class LinkExtractor {
         // ([^'\"]+)  connects everything in the link
         Pattern pattern = Pattern.compile("location\\.href\\s*=\\s*['\"]([^'\"]+)['\"]");
 
-        for (Element button : buttons) {
+        for (WebElement button : buttons) {
             String onClickVal = button.attr("onclick");
             Matcher matcher = pattern.matcher(onClickVal);
 
