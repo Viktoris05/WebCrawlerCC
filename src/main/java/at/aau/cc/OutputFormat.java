@@ -80,4 +80,19 @@ public class OutputFormat {
         return "#".repeat(headingTag) + " " + "-".repeat(2*(depth-1)) + (((depth)>1) ? "> " : "") + heading;
     }
 
+    public static String formatOfflineError(String link, int depth) {
+        checkDepth(depth);
+        return "<br>" + "-".repeat(2 * (depth - 1)) + "> [OFFLINE ERROR] Cannot resolve host or network is down for <a>" + link + "</a>";
+    }
+
+    public static String formatHttpError(String link, int depth, int statusCode) {
+        checkDepth(depth);
+        return "<br>" + "-".repeat(2 * (depth - 1)) + "> [HTTP ERROR " + statusCode + "] failed to load <a>" + link + "</a>";
+    }
+
+    public static String formatTimeoutError(String link, int depth) {
+        checkDepth(depth);
+        return "<br>" + "-".repeat(2 * (depth - 1)) + "> [TIMEOUT ERROR] Connection timed out for <a>" + link + "</a>";
+    }
+
 }
