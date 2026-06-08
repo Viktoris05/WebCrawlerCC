@@ -1,19 +1,24 @@
 package at.aau.cc;
 
 import java.net.URI;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
     private static final int MIN_CRAWL_DEPTH = 1;
     private static final int MAX_CRAWL_DEPTH = 10;
     private static final int MIN_ARGS_LENGTH = 3;
+    private static final int MIN_THREADS_AMOUNT = 1;
+    private static final int MAX_THREADS_AMOUNT = 128;
 
     public static void main(String[] args) {
         try {
             checkArgsLength(args);
 
             int depthLimit = parseDepth(args[1]);
+            int threadsAmount = parseThreadAmount(args[2]);
             checkDepthLimit(depthLimit);
-            String[] domains = getDomains(args);
+            URI[] domains = getDomains(args);
 
 
             //String normalizedUrl = normalizeURL(args[0]);
@@ -31,9 +36,13 @@ public class Main {
             Storage storage = new MarkdownStorage("Output.md");
             PageFetcher fetcher = new JsoupPageFetcher();
 
-            WebCrawler crawler = new WebCrawler(depthLimit, validator, storage, fetcher);
-            crawler.start(startUrl);
+            ExecutorService executor = Executors.newFixedThreadPool(threadsAmount);
+            WebCrawler crawler = new WebCrawler(depthLimit, validator, storage, fetcher, executor);
+            CrawlCoordinator coordinator = new CrawlCoordinator(depthLimit, crawler, validator, executor);
 
+            coordinator.start(startUrl);
+
+            executor.shutdown();
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid Arguments: " + e.getMessage());
         } catch (Exception f) {
@@ -53,6 +62,14 @@ public class Main {
             return Integer.parseInt(depthLimit);
         } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Depth limit must be an integer");
+        }
+    }
+
+    private static int parseThreadAmount(String threadsAmount){
+        try {
+            return Integer.parseInt(threadsAmount);
+        }catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Threads amount must be an integer");
         }
     }
 
@@ -79,12 +96,20 @@ public class Main {
 //        return link.endsWith("/") ? link : link + "/";
 //    }
 
-    private static String[] getDomains(String[] args) {
-        String[] domains = new String[args.length - 2];
+    private static URI[] getDomains(String[] args) {
+        URI[] domains = new URI[args.length - 2];
         for (int i = 0; i < domains.length; i++) {
             // For domains only normalize protocol
-            //domains[i] = normalizeURL(args[i + 2]);
+            domains[i] = URI.create(args[i + 2]);
+            System.out.println("Domain " + domains[i].toString());
         }
-        return domains;
+        return  domains;
+        //Don't really need to check domain validity yet. This checks for if this would be a link, not if it actually exists on the net
+//        UrlValidator validator = new UrlValidator(domains);
+//        if (validator.isValidDomains()) {
+//            return domains;
+//        } else {
+//            throw new IllegalArgumentException("Invalid domains");
+//        }
     }
 }
