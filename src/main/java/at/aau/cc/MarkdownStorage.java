@@ -10,9 +10,9 @@ public class MarkdownStorage implements Storage {
     public MarkdownStorage(String filePath) {
         this.filePath = filePath;
         // Before writing, the file gets cleaned, or create a new file
-        try{
+        try {
             new FileWriter(filePath, false).close();
-        } catch (IOException e){
+        } catch (IOException e) {
             throw new RuntimeException("Error initializing file: " + filePath + ": " + e.getMessage());
         }
     }

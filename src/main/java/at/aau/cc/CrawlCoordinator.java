@@ -9,7 +9,7 @@ import java.util.concurrent.Phaser;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class CrawlCoordinator{
+public class CrawlCoordinator {
     public WebCrawler webCrawler;
     private final UrlValidator validator;
     private final Phaser phaser = new Phaser(1); //1 for the main Thread
@@ -25,7 +25,7 @@ public class CrawlCoordinator{
         this.executor = executor;
     }
 
-    public void start(URI startUrl){
+    public void start(URI startUrl) {
         var startNode = UrlNode.createRootNode(startUrl);
         submitIfValid(startNode);
 
@@ -36,12 +36,12 @@ public class CrawlCoordinator{
 
     private void submitIfValid(UrlNode node) {
 
-        if(node.depth() > maxDepth) return;
+        if (node.depth() > maxDepth) return;
 
-        if(!validator.isValid(node.url())) return;
+        if (!validator.isValid(node.url())) return;
 
         //.add is atomic
-        if(!visitedUrls.add(node.url())) return;
+        if (!visitedUrls.add(node.url())) return;
 
         submitNode(node);
     }
@@ -53,20 +53,20 @@ public class CrawlCoordinator{
         executor.submit(() -> {
             try {
                 processNode(node);
-            }catch(Exception e) {
+            } catch (Exception e) {
                 throw new RuntimeException(e);
-            }finally {
+            } finally {
                 phaser.arriveAndDeregister();
             }
         });
     }
 
-    private void processNode(UrlNode current){
+    private void processNode(UrlNode current) {
         printProgress(current);
 
         List<URI> links = webCrawler.process(current);
 
-        for(URI link : links){
+        for (URI link : links) {
             var childNode = current.createChildNode(link);
             submitIfValid(childNode);
         }
@@ -74,7 +74,7 @@ public class CrawlCoordinator{
     }
 
     private void printProgress(UrlNode current) {
-        logger.log(Level.INFO, "Thread: {0} | Reading URL: {1} | Reading depth: {2}", new Object[]{Thread.currentThread().getName() ,current.url(), current.depth()});
+        logger.log(Level.INFO, "Thread: {0} | Reading URL: {1} | Reading depth: {2}", new Object[]{Thread.currentThread().getName(), current.url(), current.depth()});
     }
 
 }

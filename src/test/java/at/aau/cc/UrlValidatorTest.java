@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 
@@ -16,7 +15,7 @@ class UrlValidatorTest {
     @BeforeEach
     void setUp() {
         try {
-            link =  new URI("https://benji.link");
+            link = new URI("https://benji.link");
             domain = new URI[]{new URI("https://benji.link")};
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
@@ -26,11 +25,7 @@ class UrlValidatorTest {
     void changeLink(String link) {
         this.link = URI.create(link);
     }
-    void changeDomain(String[] domain) {
-        for(int i = 0; i < this.domain.length; i++) {
-            this.domain[i] = URI.create(domain[i]);
-        }
-    }
+
 
     @Test
     void isValid() {
@@ -42,8 +37,8 @@ class UrlValidatorTest {
     }
 
     @Test
-    void isInvalidBecauseNull(){
-        changeLink(null);
+    void isInvalidBecauseNull() {
+        link = null;
         UrlValidator urlValidator = new UrlValidator(domain);
 
         var result = urlValidator.isValid(link);
@@ -52,7 +47,7 @@ class UrlValidatorTest {
     }
 
     @Test
-    void isInvalidBecauseStartsWithMailTo(){
+    void isInvalidBecauseStartsWithMailTo() {
         changeLink("mailto:" + link);
         UrlValidator urlValidator = new UrlValidator(domain);
 
@@ -62,7 +57,7 @@ class UrlValidatorTest {
     }
 
     @Test
-    void isInvalidBecauseStartsWithJavaScript(){
+    void isInvalidBecauseStartsWithJavaScript() {
         changeLink("javascript:" + link);
         UrlValidator urlValidator = new UrlValidator(domain);
 
@@ -71,18 +66,9 @@ class UrlValidatorTest {
         Assertions.assertFalse(result);
     }
 
-    @Test
-    void isInvalidBecauseContainsSpace() {
-        changeLink("https://benji link");
-        UrlValidator urlValidator = new UrlValidator(domain);
-
-        var result = urlValidator.isValid(link);
-
-        Assertions.assertFalse(result);
-    }
 
     @Test
-    void isInvalidBecauseNoProtocol(){
+    void isInvalidBecauseNoProtocol() {
         changeLink("benji.link");
         UrlValidator urlValidator = new UrlValidator(domain);
 

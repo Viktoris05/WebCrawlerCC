@@ -44,7 +44,7 @@ public class Main {
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid Arguments: " + e.getMessage());
         } catch (Exception e) {
-            logger.log(Level.SEVERE,"Unexpected error occurred: " + e.getMessage(), e);
+            logger.log(Level.SEVERE, "Unexpected error occurred: " + e.getMessage(), e);
         }
     }
 
@@ -60,13 +60,13 @@ public class Main {
     }
 
 
-    private static void checkArgsLength(String[] args){
-        if(args.length < MIN_ARGS_LENGTH){
+    private static void checkArgsLength(String[] args) {
+        if (args.length < MIN_ARGS_LENGTH) {
             throw new IllegalArgumentException("Wrong number of Arguments. Usage: java Main <URL> <Depth> <Domain1> <Domain2> ... <DomainN>");
         }
     }
 
-    private static int parseDepth(String depthLimit){
+    private static int parseDepth(String depthLimit) {
         try {
             return Integer.parseInt(depthLimit);
         } catch (NumberFormatException e) {
@@ -74,22 +74,22 @@ public class Main {
         }
     }
 
-    private static int parseThreadAmount(String threadsAmount){
+    private static int parseThreadAmount(String threadsAmount) {
         try {
             return Integer.parseInt(threadsAmount);
-        }catch (NumberFormatException e) {
+        } catch (NumberFormatException e) {
             throw new IllegalArgumentException("Threads amount must be an integer");
         }
     }
 
-    private static void checkDepthLimit(int depthLimit){
-        if(depthLimit < MIN_CRAWL_DEPTH || depthLimit > MAX_CRAWL_DEPTH) {
+    private static void checkDepthLimit(int depthLimit) {
+        if (depthLimit < MIN_CRAWL_DEPTH || depthLimit > MAX_CRAWL_DEPTH) {
             throw new IllegalArgumentException("Depth limit must be between " + MIN_CRAWL_DEPTH + " and " + MAX_CRAWL_DEPTH);
         }
     }
 
-    private static void checkThreadAmountLimit(int threadsAmount){
-        if(threadsAmount < MIN_THREADS_AMOUNT ||  threadsAmount > MAX_THREADS_AMOUNT) {
+    private static void checkThreadAmountLimit(int threadsAmount) {
+        if (threadsAmount < MIN_THREADS_AMOUNT || threadsAmount > MAX_THREADS_AMOUNT) {
             throw new IllegalArgumentException("Thread Amount Limit must be between " + MIN_THREADS_AMOUNT + " and " + MAX_THREADS_AMOUNT);
         }
     }
@@ -101,6 +101,6 @@ public class Main {
             // For domains only normalize protocol
             domains[i] = URI.create(args[i + 2]);
         }
-        return  domains;
+        return domains;
     }
 }

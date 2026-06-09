@@ -10,7 +10,9 @@ public class UrlValidator {
     }
 
     public boolean isValid(URI url) {
-        if(url == null || url.getScheme() == null){ return false; }
+        if (url == null || url.getScheme() == null) {
+            return false;
+        }
 
         if (url.getFragment() != null || url.getScheme().equalsIgnoreCase("mailto") || url.getScheme().equalsIgnoreCase("javascript")) {
             return false;
@@ -25,7 +27,7 @@ public class UrlValidator {
     public boolean containedWithinDomains(URI url) {
         if (domains != null && domains.length > 0) {
             for (URI domain : domains) {
-                if (url.getHost().equals(domain.toString())) {
+                if (url.getHost().equals(domain.getHost())) {
                     return true;
                 }
             }
