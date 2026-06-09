@@ -13,18 +13,18 @@ class OutputFormatTest {
     URI link;
     int depth;
 
-    void createTestData(int depth){
+    void createTestData(int depth) {
         headers = new String[][]{{"Test", "2"}, {"Test2", "1"}};
-        websiteData = new WebsiteData( URI.create("test.com"),depth, headers);
+        websiteData = new WebsiteData(URI.create("test.com"), depth, headers);
     }
 
-    void createTestLink(int testDepth){
+    void createTestLink(int testDepth) {
         link = URI.create("https://google.com");
         depth = testDepth;
     }
 
     @Test
-    void formatFirstLink(){
+    void formatFirstLink() {
         createTestData(1);
         String[] expected = new String[]{"input: <a>test.com</a>", "<br>depth: 1", "## Test", "# Test2"};
 

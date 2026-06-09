@@ -17,13 +17,14 @@ class WebsiteDataTest {
     String[][] testHeaders;
 
     WebsiteData testWebsiteData;
+
     void createTestData() {
         testLink = URI.create("testlink.com");
         testDepth = 2;
         testHeader = "Hello there!";
         testHeaderTag = 1;
         testHeaders = new String[][]{{testHeader, "1"}, {"General Kenobi!", "2"}, {"You are a bold one.", "3"}};
-        testWebsiteData = new WebsiteData(testLink,testDepth, testHeaders);
+        testWebsiteData = new WebsiteData(testLink, testDepth, testHeaders);
     }
 
 

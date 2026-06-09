@@ -13,11 +13,11 @@ public record UrlNode(URI url, int depth, UrlNode parent, List<UrlNode> children
         }
     }
 
-    public static UrlNode createRootNode(URI url){
+    public static UrlNode createRootNode(URI url) {
         return new UrlNode(url, 1, null);
     }
 
-    public UrlNode createChildNode(URI url){
+    public UrlNode createChildNode(URI url) {
         return new UrlNode(url, depth + 1, this);
     }
 

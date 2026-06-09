@@ -2,12 +2,11 @@ package at.aau.cc;
 
 import org.junit.jupiter.api.Test;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.URL;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class JsoupPageFetcherTest {
 
@@ -21,9 +20,7 @@ public class JsoupPageFetcherTest {
 
 
             // Act & Assert
-            PageHttpException exception = assertThrows(PageHttpException.class, () -> {
-                fetcher.fetch(urlReturning404);
-            }, "Fetching a 404 URL should throw PageHttpException");
+            PageHttpException exception = assertThrows(PageHttpException.class, () -> fetcher.fetch(urlReturning404), "Fetching a 404 URL should throw PageHttpException");
 
             assertEquals(404, exception.getStatusCode(), "The status code should be 404");
         } catch (URISyntaxException e) {
@@ -44,8 +41,6 @@ public class JsoupPageFetcherTest {
         }
 
         // Act & Assert
-        assertThrows(OfflineException.class, () -> {
-            fetcher.fetch(nonExistentUrl);
-        }, "Fetching an unknown host should be mapped to an OfflineException");
+        assertThrows(OfflineException.class, () -> fetcher.fetch(nonExistentUrl), "Fetching an unknown host should be mapped to an OfflineException");
     }
 }

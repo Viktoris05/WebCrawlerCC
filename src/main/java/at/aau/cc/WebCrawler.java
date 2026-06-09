@@ -25,7 +25,7 @@ public class WebCrawler {
 
 
     public List<URI> process(UrlNode urlNode) {
-        try{
+        try {
             WebPage doc = fetcher.fetch(urlNode.url());
 
             savePage(doc, urlNode);
@@ -46,13 +46,10 @@ public class WebCrawler {
     }
 
     private void handleCrawlException(UrlNode current, Exception e) {
-        String errorMessage = switch(e){
-            case OfflineException exception ->
-                OutputFormat.formatOfflineError(current.url(),current.depth());
-            case CrawlTimeoutException exception ->
-                OutputFormat.formatTimeoutError(current.url(), current.depth());
-            default ->
-                OutputFormat.formatBrokenLink(current.url(), current.depth());
+        String errorMessage = switch (e) {
+            case OfflineException exception -> OutputFormat.formatOfflineError(current.url(), current.depth());
+            case CrawlTimeoutException exception -> OutputFormat.formatTimeoutError(current.url(), current.depth());
+            default -> OutputFormat.formatBrokenLink(current.url(), current.depth());
         };
         logger.log(Level.WARNING, errorMessage);
 
@@ -61,9 +58,9 @@ public class WebCrawler {
         websiteDataMap.put(current, exceptionData);
     }
 
-    public void writeReport(UrlNode current){
+    public void writeReport(UrlNode current) {
         //remove so each link is shown only once
-        switch(websiteDataMap.remove(current)){
+        switch (websiteDataMap.remove(current)) {
             case WebsiteData data -> {
                 boolean isFirstEntry = visitedUrls.size() == 1;
                 String[] formattedOutput = OutputFormat.formatLink(data, isFirstEntry);

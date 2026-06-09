@@ -8,7 +8,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-// Low-level module implementing the PageFetcher boundary using Jsoup
 public class JsoupPageFetcher implements PageFetcher {
     @Override
     public WebPage fetch(URI url) throws CrawlException {
@@ -20,13 +19,10 @@ public class JsoupPageFetcher implements PageFetcher {
             // Catching standard HTTP errors like 404 or 500
             throw new PageHttpException(e.getStatusCode(), "HTTP error fetching URL: status " + e.getStatusCode(), e);
         } catch (java.net.SocketTimeoutException e) {
-            // Catching read/connect timeout errors
             throw new CrawlTimeoutException("Timeout occurred while connecting to URL", e);
         } catch (java.net.UnknownHostException | java.net.ConnectException e) {
-            // Teacher requirement: Detecting if the system is offline (DNS failure or network unreachable)
             throw new OfflineException("Network is unreachable or host is unknown. The system might be offline.", e);
         } catch (java.io.IOException e) {
-            // Catching any other unexpected low-level I/O errors
             throw new CrawlException("General I/O error occurred while fetching URL", e);
         }
     }

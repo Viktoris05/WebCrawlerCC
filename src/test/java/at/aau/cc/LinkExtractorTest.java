@@ -8,7 +8,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class LinkExtractorTest {
 
@@ -16,7 +16,7 @@ class LinkExtractorTest {
     WebPage document;
     List<URI> expectedOutput = new ArrayList<>();
 
-    void setUp() throws IOException {
+    void setUp() {
         link = URI.create("https://benji.link/links");
         document = Mockito.mock(WebPage.class);
 
