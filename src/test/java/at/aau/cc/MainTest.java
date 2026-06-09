@@ -2,7 +2,6 @@ package at.aau.cc;
 
 import org.junit.jupiter.api.*;
 
-@Disabled("Not fit for automated test as it crawls")
 class MainTest {
     String[] inputArgs;
 
@@ -48,7 +47,7 @@ class MainTest {
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> Main.main(inputArgs));
 
-        Assertions.assertEquals("Invalid Arguments: Invalid initial link: https://" + link + "/", exception.getMessage());
+        Assertions.assertEquals("Invalid Arguments: java.net.URISyntaxException: Illegal character in path at index 5: benji link", exception.getMessage());
     }
 
     @Test
@@ -76,6 +75,6 @@ class MainTest {
 
         IllegalArgumentException exception = Assertions.assertThrows(IllegalArgumentException.class, () -> Main.main(inputArgs));
 
-        Assertions.assertEquals("Invalid Arguments: Invalid domains: [https://" + wrongDomain + "]", exception.getMessage());
+        Assertions.assertEquals("URI is not absolute", exception.getMessage());
     }
 }

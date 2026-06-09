@@ -3,12 +3,14 @@ package at.aau.cc;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
+
 import static java.lang.Integer.parseInt;
 
 
 class WebsiteDataTest {
 
-    String testLink;
+    URI testLink;
     int testDepth;
     String testHeader;
     int testHeaderTag;
@@ -16,7 +18,7 @@ class WebsiteDataTest {
 
     WebsiteData testWebsiteData;
     void createTestData() {
-        testLink = "testlink.com";
+        testLink = URI.create("testlink.com");
         testDepth = 2;
         testHeader = "Hello there!";
         testHeaderTag = 1;

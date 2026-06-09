@@ -21,12 +21,6 @@ public class UrlValidator {
         return containedWithinDomains(url);
     }
 
-//    public boolean isValidDomains(){
-//        for(URI domain : domains){
-//            if(!isValid(URI.create("https://" + domain))) return false;
-//        }
-//        return true;
-//    }
 
     public boolean containedWithinDomains(URI url) {
         if (domains != null && domains.length > 0) {

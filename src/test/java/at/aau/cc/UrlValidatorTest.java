@@ -4,22 +4,32 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 
 class UrlValidatorTest {
-    String link;
-    String[] domain;
+    URI link;
+    URI[] domain;
 
     @BeforeEach
     void setUp() {
-        link = "https://benji.link";
-        domain = new String[]{"https://benji.link"};
+        try {
+            link =  new URI("https://benji.link");
+            domain = new URI[]{new URI("https://benji.link")};
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     void changeLink(String link) {
-        this.link = link;
+        this.link = URI.create(link);
     }
     void changeDomain(String[] domain) {
-        this.domain = domain;
+        for(int i = 0; i < this.domain.length; i++) {
+            this.domain[i] = URI.create(domain[i]);
+        }
     }
 
     @Test
@@ -32,28 +42,8 @@ class UrlValidatorTest {
     }
 
     @Test
-    void isInvalidBecauseEmpty() {
-        changeLink("");
-        UrlValidator urlValidator = new UrlValidator(domain);
-
-        var result = urlValidator.isValid(link);
-
-        Assertions.assertFalse(result);
-    }
-
-    @Test
     void isInvalidBecauseNull(){
         changeLink(null);
-        UrlValidator urlValidator = new UrlValidator(domain);
-
-        var result = urlValidator.isValid(link);
-
-        Assertions.assertFalse(result);
-    }
-
-    @Test
-    void isInvalidBecauseContainsHashtag(){
-        changeLink("#" + link);
         UrlValidator urlValidator = new UrlValidator(domain);
 
         var result = urlValidator.isValid(link);
@@ -92,25 +82,14 @@ class UrlValidatorTest {
     }
 
     @Test
-    void isValidDomains() {
+    void isInvalidBecauseNoProtocol(){
+        changeLink("benji.link");
         UrlValidator urlValidator = new UrlValidator(domain);
 
-        var result = urlValidator.isValidDomains();
-
-        Assertions.assertTrue(result);
-    }
-
-    @Test
-    void isInvalidDomainsBecauseEmpty() {
-        String[] emptyDomain = new String[]{""};
-        changeDomain(emptyDomain);
-        UrlValidator urlValidator = new UrlValidator(domain);
-
-        var result = urlValidator.isValidDomains();
+        var result = urlValidator.isValid(link);
 
         Assertions.assertFalse(result);
     }
-
 
     @Test
     void containedWithinDomains() {

@@ -13,7 +13,6 @@ public class LinkExtractor {
     public static List<URI> extract(WebPage doc, URI currentUrl) {
         List<URI> foundUrls = new ArrayList<>();
 
-        // Find all <a> tags that contain a href attribute
         List<WebElement> anchorTags = doc.select("a[href]");
         for (WebElement element : anchorTags) {
             try {
@@ -40,19 +39,8 @@ public class LinkExtractor {
 
             if (matcher.find()) {
                 // group(1) - is anything in '' or ""
-                //String extractedUrl = matcher.group(1);
                 URI extractedUrl = currentUrl.resolve(matcher.group(1));
 
-                // if the link is not inside, like /main.html
-//                if (!extractedUrl.isAbsolute()) {
-//                    try {
-//                        // Making the url absolute
-//                        extractedUrl = URI.create(currentUrl).resolve(extractedUrl);
-//                    } catch (Exception e) {
-//                        foundUrls.add(extractedUrl);
-//                        continue;
-//                    }
-//                }
                 foundUrls.add(extractedUrl);
             }
         }

@@ -1,10 +1,10 @@
 package at.aau.cc;
 
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
 import java.io.IOException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,27 +12,46 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class LinkExtractorTest {
 
-    String link;
-    Document document;
-    List<String> expectedOutput = new ArrayList<>();
+    URI link;
+    WebPage document;
+    List<URI> expectedOutput = new ArrayList<>();
 
     void setUp() throws IOException {
-        link = "https://benji.link/links";
-        document = Jsoup.connect(link).get();
+        link = URI.create("https://benji.link/links");
+        document = Mockito.mock(WebPage.class);
 
-        expectedOutput.add("https://benji.link/");
-        expectedOutput.add("https://benji.link/");
-        expectedOutput.add("https://github.com/hibenji");
-        expectedOutput.add("https://up.benji.link");
-        expectedOutput.add("https://short.benji.link");
-        expectedOutput.add("https://paste.benji.link");
-        expectedOutput.add("https://suchnode.net");
-        expectedOutput.add("https://benji.link/kreuzel/linopt.html");
+
+        expectedOutput.add(URI.create("https://benji.link/"));
+        expectedOutput.add(URI.create("https://benji.link/"));
+        expectedOutput.add(URI.create("https://github.com/hibenji"));
+        expectedOutput.add(URI.create("https://up.benji.link"));
+        expectedOutput.add(URI.create("https://short.benji.link"));
+        expectedOutput.add(URI.create("https://paste.benji.link"));
+        expectedOutput.add(URI.create("https://suchnode.net"));
+        expectedOutput.add(URI.create("https://benji.link/kreuzel/linopt.html"));
+
+
     }
 
     @Test
-    void extract() throws IOException {
+    void extractAbsHref() throws IOException {
         setUp();
+        Mockito.when(document.select("a[href]")).thenReturn(expectedOutput.stream().map(uri ->
+                (WebElement) new MockWebElement("test", "a", uri.toString(), null)
+        ).toList());
+
+        var result = LinkExtractor.extract(document, link);
+
+        assertEquals(expectedOutput, result);
+
+    }
+
+    @Test
+    void extractOnClick() throws IOException {
+        setUp();
+        Mockito.when(document.select("button[onclick]")).thenReturn(expectedOutput.stream().map(uri ->
+                (WebElement) new MockWebElement("test", "button", null, uri.toString())
+        ).toList());
 
         var result = LinkExtractor.extract(document, link);
 

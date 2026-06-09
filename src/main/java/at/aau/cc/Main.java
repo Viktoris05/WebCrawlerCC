@@ -9,7 +9,7 @@ import java.util.logging.Logger;
 public class Main {
     private static final int MIN_CRAWL_DEPTH = 1;
     private static final int MAX_CRAWL_DEPTH = 10;
-    private static final int MIN_ARGS_LENGTH = 3;
+    private static final int MIN_ARGS_LENGTH = 4;
     private static final int MIN_THREADS_AMOUNT = 1;
     private static final int MAX_THREADS_AMOUNT = 128;
     private static final Logger logger = Logger.getLogger(Main.class.getName());
