@@ -3,6 +3,8 @@ package at.aau.cc;
 import java.net.URI;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class Main {
     private static final int MIN_CRAWL_DEPTH = 1;
@@ -10,34 +12,30 @@ public class Main {
     private static final int MIN_ARGS_LENGTH = 3;
     private static final int MIN_THREADS_AMOUNT = 1;
     private static final int MAX_THREADS_AMOUNT = 128;
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) {
         try {
             checkArgsLength(args);
 
+            URI startUrl = parseStartUrl(args[0]);
             int depthLimit = parseDepth(args[1]);
             int threadsAmount = parseThreadAmount(args[2]);
+
             checkDepthLimit(depthLimit);
-            URI[] domains = getDomains(args);
+            checkThreadAmountLimit(threadsAmount);
+
+            URI[] domains = parseDomains(args);
 
 
-            //String normalizedUrl = normalizeURL(args[0]);
-            //String startUrl = appendTrailingSlash(args[0]);
-
-            //String inputLink = args[0];
-            URI startUrl = new URI("https://" + args[0].trim());
-            //startUrl = normalizeURL(startUrl);
-
-
-
-            System.out.println("START SCANNING");
+            logger.info("START SCANNING");
 
             UrlValidator validator = new UrlValidator(domains);
             Storage storage = new MarkdownStorage("Output.md");
             PageFetcher fetcher = new JsoupPageFetcher();
 
             ExecutorService executor = Executors.newFixedThreadPool(threadsAmount);
-            WebCrawler crawler = new WebCrawler(depthLimit, validator, storage, fetcher, executor);
+            WebCrawler crawler = new WebCrawler(storage, fetcher);
             CrawlCoordinator coordinator = new CrawlCoordinator(depthLimit, crawler, validator, executor);
 
             coordinator.start(startUrl);
@@ -45,9 +43,20 @@ public class Main {
             executor.shutdown();
         } catch (IllegalArgumentException e) {
             throw new IllegalArgumentException("Invalid Arguments: " + e.getMessage());
-        } catch (Exception f) {
-            System.err.println("Unexpected error occurred: " + f.getMessage());
+        } catch (Exception e) {
+            logger.log(Level.SEVERE,"Unexpected error occurred: " + e.getMessage(), e);
         }
+    }
+
+    private static URI parseStartUrl(String startUrl) {
+        String parsedUrl = startUrl.trim();
+
+        if (!parsedUrl.startsWith("https://") && !parsedUrl.startsWith("http://")) {
+            parsedUrl = "https://" + parsedUrl;
+        }
+
+        var uri = URI.create(parsedUrl);
+        return uri.normalize();
     }
 
 
@@ -79,37 +88,19 @@ public class Main {
         }
     }
 
-//    private static String normalizeURL(String input) throws URISyntaxException {
-//        if (input == null) return null;
-//        if(input.getProtocol() == null) {
-//            try {
-//                input = new URI("https://" + input).toURL();
-//            } catch (MalformedURLException e) {
-//                throw new RuntimeException(e);
-//            }
-//        }
-//        return input;
-//    }
+    private static void checkThreadAmountLimit(int threadsAmount){
+        if(threadsAmount < MIN_THREADS_AMOUNT ||  threadsAmount > MAX_THREADS_AMOUNT) {
+            throw new IllegalArgumentException("Thread Amount Limit must be between " + MIN_THREADS_AMOUNT + " and " + MAX_THREADS_AMOUNT);
+        }
+    }
 
-//    private static String appendTrailingSlash(String link) {
-//        if (link == null || link.isEmpty()) return link;
-//        return link.endsWith("/") ? link : link + "/";
-//    }
 
-    private static URI[] getDomains(String[] args) {
+    private static URI[] parseDomains(String[] args) {
         URI[] domains = new URI[args.length - 2];
         for (int i = 0; i < domains.length; i++) {
             // For domains only normalize protocol
             domains[i] = URI.create(args[i + 2]);
-            System.out.println("Domain " + domains[i].toString());
         }
         return  domains;
-        //Don't really need to check domain validity yet. This checks for if this would be a link, not if it actually exists on the net
-//        UrlValidator validator = new UrlValidator(domains);
-//        if (validator.isValidDomains()) {
-//            return domains;
-//        } else {
-//            throw new IllegalArgumentException("Invalid domains");
-//        }
     }
 }
