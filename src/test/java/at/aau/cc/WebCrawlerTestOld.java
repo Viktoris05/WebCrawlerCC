@@ -15,7 +15,6 @@ class WebCrawlerTestOld {
     static String[] domains = new String[]{"https://benji.link"};
     static String fileName = "TestOutput.md";
 
-    //TODO
 
     static boolean isInFile(String input){
         try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
