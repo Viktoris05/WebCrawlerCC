@@ -1,5 +1,7 @@
 package at.aau.cc;
 
+import java.net.URI;
+
 public class OutputFormat {
     public static String[] formatLink(WebsiteData websiteData, boolean firstEntry){
         checkDepth(websiteData.currentDepth());
@@ -26,17 +28,17 @@ public class OutputFormat {
         return output;
     }
 
-    public static String formatBrokenLink(String link, int depth){
+    public static String formatBrokenLink(URI link, int depth){
         checkDepth(depth);
         return writeBrokenLink(link, depth);
     }
 
-    public static String formatRecurringLink(String link, int depth){
+    public static String formatRecurringLink(URI link, int depth){
         checkDepth(depth);
         return writeRecurringLink(link, depth);
     }
 
-    public static String formatLinkOnly(String link, int depth){
+    public static String formatLinkOnly(URI link, int depth){
         checkDepth(depth);
         return writeLink(link, depth);
     }
@@ -56,19 +58,19 @@ public class OutputFormat {
         return outputLength;
     }
 
-    private static String writeFirstLine(String link){
+    private static String writeFirstLine(URI link){
         return "input: <a>" + link + "</a>";
     }
 
-    private static String writeLink(String link, int depth){
+    private static String writeLink(URI link, int depth){
         return "<br>" + "-".repeat(2*(depth-1)) + "> link to <a>" + link + "</a>";
     }
 
-    private static String writeBrokenLink(String link, int depth){
+    private static String writeBrokenLink(URI link, int depth){
         return "<br>" + "-".repeat(2*(depth-1)) + "> broken link to <a>" + link + "</a>";
     }
 
-    private static String writeRecurringLink(String link, int depth){
+    private static String writeRecurringLink(URI link, int depth){
         return "<br>" + "-".repeat(2*(depth-1)) + "> <a>" + link + "</a>, already visited";
     }
 
@@ -80,17 +82,17 @@ public class OutputFormat {
         return "#".repeat(headingTag) + " " + "-".repeat(2*(depth-1)) + (((depth)>1) ? "> " : "") + heading;
     }
 
-    public static String formatOfflineError(String link, int depth) {
+    public static String formatOfflineError(URI link, int depth) {
         checkDepth(depth);
         return "<br>" + "-".repeat(2 * (depth - 1)) + "> [OFFLINE ERROR] Cannot resolve host or network is down for <a>" + link + "</a>";
     }
 
-    public static String formatHttpError(String link, int depth, int statusCode) {
+    public static String formatHttpError(URI link, int depth, int statusCode) {
         checkDepth(depth);
         return "<br>" + "-".repeat(2 * (depth - 1)) + "> [HTTP ERROR " + statusCode + "] failed to load <a>" + link + "</a>";
     }
 
-    public static String formatTimeoutError(String link, int depth) {
+    public static String formatTimeoutError(URI link, int depth) {
         checkDepth(depth);
         return "<br>" + "-".repeat(2 * (depth - 1)) + "> [TIMEOUT ERROR] Connection timed out for <a>" + link + "</a>";
     }

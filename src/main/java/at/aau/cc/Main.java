@@ -1,37 +1,62 @@
 package at.aau.cc;
 
+import java.net.URI;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 public class Main {
     private static final int MIN_CRAWL_DEPTH = 1;
     private static final int MAX_CRAWL_DEPTH = 10;
-    private static final int MIN_ARGS_LENGTH = 3;
+    private static final int MIN_ARGS_LENGTH = 4;
+    private static final int MIN_THREADS_AMOUNT = 1;
+    private static final int MAX_THREADS_AMOUNT = 128;
+    private static final Logger logger = Logger.getLogger(Main.class.getName());
 
     public static void main(String[] args) {
         try {
             checkArgsLength(args);
 
+            URI startUrl = parseStartUrl(args[0]);
             int depthLimit = parseDepth(args[1]);
+            int threadsAmount = parseThreadAmount(args[2]);
+
             checkDepthLimit(depthLimit);
-            String[] domains = getDomains(args);
+            checkThreadAmountLimit(threadsAmount);
+
+            URI[] domains = parseDomains(args);
 
 
-            String normalizedUrl = normalize(args[0]);
-            String startUrl = appendTrailingSlash(normalizedUrl);
-
-
-            System.out.println("START SCANNING");
+            logger.info("START SCANNING");
 
             UrlValidator validator = new UrlValidator(domains);
             Storage storage = new MarkdownStorage("Output.md");
             PageFetcher fetcher = new JsoupPageFetcher();
 
-            WebCrawler crawler = new WebCrawler(depthLimit, validator, storage, fetcher);
-            crawler.start(startUrl);
+            ExecutorService executor = Executors.newFixedThreadPool(threadsAmount);
+            WebCrawler crawler = new WebCrawler(storage, fetcher);
+            CrawlCoordinator coordinator = new CrawlCoordinator(depthLimit, crawler, validator, executor);
 
+            coordinator.start(startUrl);
+
+            executor.shutdown();
         } catch (IllegalArgumentException e) {
-            System.err.println("Invalid arguments: " + e.getMessage());
+            throw new IllegalArgumentException("Invalid Arguments: " + e.getMessage());
         } catch (Exception e) {
-            System.err.println("Unexpected error occurred: " + e.getMessage());
+            logger.log(Level.SEVERE,"Unexpected error occurred: " + e.getMessage(), e);
         }
+    }
+
+    private static URI parseStartUrl(String startUrl) {
+        String parsedUrl = startUrl.trim();
+
+        if (!parsedUrl.startsWith("https://") && !parsedUrl.startsWith("http://")) {
+            parsedUrl = "https://" + parsedUrl;
+        }
+
+        var uri = URI.create(parsedUrl);
+        return uri.normalize();
     }
 
 
@@ -49,33 +74,33 @@ public class Main {
         }
     }
 
+    private static int parseThreadAmount(String threadsAmount){
+        try {
+            return Integer.parseInt(threadsAmount);
+        }catch (NumberFormatException e) {
+            throw new IllegalArgumentException("Threads amount must be an integer");
+        }
+    }
+
     private static void checkDepthLimit(int depthLimit){
         if(depthLimit < MIN_CRAWL_DEPTH || depthLimit > MAX_CRAWL_DEPTH) {
             throw new IllegalArgumentException("Depth limit must be between " + MIN_CRAWL_DEPTH + " and " + MAX_CRAWL_DEPTH);
         }
     }
 
-    private static String normalize(String input) {
-        if (input == null) return "";
-        String cleaned = input.trim();
-
-        if (!cleaned.startsWith("http://") && !cleaned.startsWith("https://")) {
-            cleaned = "https://" + cleaned;
+    private static void checkThreadAmountLimit(int threadsAmount){
+        if(threadsAmount < MIN_THREADS_AMOUNT ||  threadsAmount > MAX_THREADS_AMOUNT) {
+            throw new IllegalArgumentException("Thread Amount Limit must be between " + MIN_THREADS_AMOUNT + " and " + MAX_THREADS_AMOUNT);
         }
-        return cleaned;
     }
 
-    private static String appendTrailingSlash(String link) {
-        if (link == null || link.isEmpty()) return link;
-        return link.endsWith("/") ? link : link + "/";
-    }
 
-    private static String[] getDomains(String[] args) {
-        String[] domains = new String[args.length - 2];
+    private static URI[] parseDomains(String[] args) {
+        URI[] domains = new URI[args.length - 2];
         for (int i = 0; i < domains.length; i++) {
             // For domains only normalize protocol
-            domains[i] = normalize(args[i + 2]);
+            domains[i] = URI.create(args[i + 2]);
         }
-        return domains;
+        return  domains;
     }
 }

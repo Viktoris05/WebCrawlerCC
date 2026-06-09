@@ -4,39 +4,69 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 
 class UrlValidatorTest {
-    String link;
-    String[] domain;
+    URI link;
+    URI[] domain;
 
     @BeforeEach
     void setUp() {
-        link = "https://benji.link";
-        domain = new String[]{"https://benji.link"};
+        try {
+            link =  new URI("https://benji.link");
+            domain = new URI[]{new URI("https://benji.link")};
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     void changeLink(String link) {
-        this.link = link;
+        this.link = URI.create(link);
     }
     void changeDomain(String[] domain) {
-        this.domain = domain;
+        for(int i = 0; i < this.domain.length; i++) {
+            this.domain[i] = URI.create(domain[i]);
+        }
     }
 
     @Test
     void isValid() {
-        UrlValidator urlValidater = new UrlValidator(domain);
+        UrlValidator urlValidator = new UrlValidator(domain);
 
-        var result = urlValidater.isValid(link);
+        var result = urlValidator.isValid(link);
 
         Assertions.assertTrue(result);
     }
 
     @Test
-    void isInvalidBecauseEmpty() {
-        changeLink("");
-        UrlValidator urlValidater = new UrlValidator(domain);
+    void isInvalidBecauseNull(){
+        changeLink(null);
+        UrlValidator urlValidator = new UrlValidator(domain);
 
-        var result = urlValidater.isValid(link);
+        var result = urlValidator.isValid(link);
+
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    void isInvalidBecauseStartsWithMailTo(){
+        changeLink("mailto:" + link);
+        UrlValidator urlValidator = new UrlValidator(domain);
+
+        var result = urlValidator.isValid(link);
+
+        Assertions.assertFalse(result);
+    }
+
+    @Test
+    void isInvalidBecauseStartsWithJavaScript(){
+        changeLink("javascript:" + link);
+        UrlValidator urlValidator = new UrlValidator(domain);
+
+        var result = urlValidator.isValid(link);
 
         Assertions.assertFalse(result);
     }
@@ -44,39 +74,28 @@ class UrlValidatorTest {
     @Test
     void isInvalidBecauseContainsSpace() {
         changeLink("https://benji link");
-        UrlValidator urlValidater = new UrlValidator(domain);
+        UrlValidator urlValidator = new UrlValidator(domain);
 
-        var result = urlValidater.isValid(link);
+        var result = urlValidator.isValid(link);
 
         Assertions.assertFalse(result);
     }
 
     @Test
-    void isValidDomains() {
-        UrlValidator urlValidater = new UrlValidator(domain);
+    void isInvalidBecauseNoProtocol(){
+        changeLink("benji.link");
+        UrlValidator urlValidator = new UrlValidator(domain);
 
-        var result = urlValidater.isValidDomains();
-
-        Assertions.assertTrue(result);
-    }
-
-    @Test
-    void isInvalidDomainsBecauseEmpty() {
-        String[] emptyDomain = new String[]{""};
-        changeDomain(emptyDomain);
-        UrlValidator urlValidater = new UrlValidator(domain);
-
-        var result = urlValidater.isValidDomains();
+        var result = urlValidator.isValid(link);
 
         Assertions.assertFalse(result);
     }
-
 
     @Test
     void containedWithinDomains() {
-        UrlValidator urlValidater = new UrlValidator(domain);
+        UrlValidator urlValidator = new UrlValidator(domain);
 
-        var result = urlValidater.containedWithinDomains(link);
+        var result = urlValidator.containedWithinDomains(link);
 
         Assertions.assertTrue(result);
     }
@@ -84,9 +103,9 @@ class UrlValidatorTest {
     @Test
     void notContainedWithinDomains() {
         changeLink("https://github.com");
-        UrlValidator urlValidater = new UrlValidator(domain);
+        UrlValidator urlValidator = new UrlValidator(domain);
 
-        var result = urlValidater.containedWithinDomains(link);
+        var result = urlValidator.containedWithinDomains(link);
 
         Assertions.assertFalse(result);
     }

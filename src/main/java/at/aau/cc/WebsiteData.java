@@ -1,6 +1,8 @@
 package at.aau.cc;
 
-public record WebsiteData(String link, int currentDepth, String[][] headers) {
+import java.net.URI;
+
+public record WebsiteData(URI link, int currentDepth, String[][] headers) implements WebsiteResult {
     public String getHeader(int index) {
         return headers[index][0];
     }

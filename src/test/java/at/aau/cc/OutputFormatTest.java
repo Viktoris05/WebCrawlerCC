@@ -3,21 +3,23 @@ package at.aau.cc;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
+
 
 class OutputFormatTest {
 
     WebsiteData websiteData;
     String[][] headers;
-    String link;
+    URI link;
     int depth;
 
     void createTestData(int depth){
         headers = new String[][]{{"Test", "2"}, {"Test2", "1"}};
-        websiteData = new WebsiteData("test.com",depth, headers);
+        websiteData = new WebsiteData( URI.create("test.com"),depth, headers);
     }
 
     void createTestLink(int testDepth){
-        link = "https://google.com";
+        link = URI.create("https://google.com");
         depth = testDepth;
     }
 

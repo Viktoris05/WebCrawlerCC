@@ -1,62 +1,47 @@
 package at.aau.cc;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mock;
+import org.mockito.Mockito;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import java.net.URI;
 
-@Disabled //IntegrationTest
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+
 class WebCrawlerTest {
-    static String link;
-    static int maxDepth = 2;
-    static String[] domains = new String[]{"https://benji.link"};
-    static String fileName = "TestOutput.md";
+    WebCrawler webCrawler;
+    private Storage storage;
+    private PageFetcher fetcher;
+    private UrlNode urlNode;
 
-
-    @BeforeAll
-    static void start() {
-        WebCrawler webCrawler = new WebCrawler(maxDepth, domains, fileName);
-        link = "https://benji.link";
-
-        webCrawler.start(link);
+    @BeforeEach
+    void setUp(){
+        urlNode = UrlNode.createRootNode(URI.create("https://benji.link/"));
+        storage = Mockito.mock(Storage.class);
+        fetcher = Mockito.mock(PageFetcher.class);
+        webCrawler = new WebCrawler(storage, fetcher);
     }
 
-    static boolean isInFile(String input){
-        try (BufferedReader bufferedReader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = bufferedReader.readLine()) != null){
-                if (line.contains(input)){
-                    return true;
-                }
-            }
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        return false;
+    @AfterEach
+    void tearDown(){
+        Mockito.reset(storage, fetcher);
+
     }
 
     @Test
-    void checkForLinks(){
-        Assertions.assertTrue(isInFile("https://benji.link"));
-        Assertions.assertTrue(isInFile("https://benji.link/links/"));
+    void process() {
+        WebPage webPage = Mockito.mock(WebPage.class);
+        Mockito.when(fetcher.fetch(any())).thenReturn(webPage);
 
-        Assertions.assertFalse(isInFile("https://github.com"));
+        webCrawler.process(urlNode);
+
+
     }
 
     @Test
-    void checkForDepth(){
-        Assertions.assertFalse(isInFile("<br>depth: 3"));
-
-        Assertions.assertTrue(isInFile("<br>depth: 1"));
-    }
-
-    @Test
-    void checkForHeaders(){
-        Assertions.assertTrue(isInFile("# Hello, I'm Benji."));
-        Assertions.assertTrue(isInFile("### --> Services"));
+    void writeReport() {
     }
 }

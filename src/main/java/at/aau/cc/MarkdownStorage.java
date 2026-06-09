@@ -13,7 +13,7 @@ public class MarkdownStorage implements Storage {
         try{
             new FileWriter(filePath, false).close();
         } catch (IOException e){
-            System.err.println("Error initializing file: " + e.getMessage());
+            throw new RuntimeException("Error initializing file: " + filePath + ": " + e.getMessage());
         }
     }
 
@@ -24,7 +24,7 @@ public class MarkdownStorage implements Storage {
                 writer.newLine();
             }
         } catch (IOException e) {
-            System.err.println("Error writing lines to file: " + e.getMessage());
+            throw new RuntimeException("Error writing lines to file: " + e.getMessage());
         }
     }
 
@@ -33,7 +33,7 @@ public class MarkdownStorage implements Storage {
             writer.write(line);
             writer.newLine();
         } catch (IOException e) {
-            System.err.println("Error writing line to file: " + e.getMessage());
+            throw new RuntimeException("Error writing line to file: " + e.getMessage());
         }
     }
 }

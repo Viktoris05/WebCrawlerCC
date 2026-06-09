@@ -3,16 +3,18 @@ package at.aau.cc;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 
 // Low-level module implementing the PageFetcher boundary using Jsoup
 public class JsoupPageFetcher implements PageFetcher {
     @Override
-    public WebPage fetch(String url) throws CrawlException {
+    public WebPage fetch(URI url) throws CrawlException {
         try {
             // Configuring an explicit timeout to ensure the app doesn't hang indefinitely
-            Document doc = Jsoup.connect(url).timeout(5000).get();
+            Document doc = Jsoup.connect(String.valueOf(url)).timeout(5000).get();
             return new JsoupWebPage(doc);
         } catch (org.jsoup.HttpStatusException e) {
             // Catching standard HTTP errors like 404 or 500

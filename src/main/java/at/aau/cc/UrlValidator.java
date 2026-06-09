@@ -1,34 +1,31 @@
 package at.aau.cc;
 
-public class UrlValidator {
-    private final String[] domains;
+import java.net.URI;
 
-    public UrlValidator(String[] domains) {
+public class UrlValidator {
+    private final URI[] domains;
+
+    public UrlValidator(URI[] domains) {
         this.domains = domains;
     }
 
-    public boolean isValid(String url) {
-        if (url == null || url.isEmpty() || url.contains("#") || url.startsWith("mailto:") || url.startsWith("javascript:")) {
+    public boolean isValid(URI url) {
+        if(url == null || url.getScheme() == null){ return false; }
+
+        if (url.getFragment() != null || url.getScheme().equalsIgnoreCase("mailto") || url.getScheme().equalsIgnoreCase("javascript")) {
             return false;
         }
 
-        if (url.contains(" ") || !url.contains(".")) return false;
-        if (!url.startsWith("http://") && !url.startsWith("https://")) return false;
+        if (!url.getScheme().equalsIgnoreCase("https") && !url.getScheme().equalsIgnoreCase("http")) return false;
 
         return containedWithinDomains(url);
     }
 
-    public boolean isValidDomains(){
-        for(String domain : domains){
-            if(!isValid(domain)) return false;
-        }
-        return true;
-    }
 
-    public boolean containedWithinDomains(String url) {
+    public boolean containedWithinDomains(URI url) {
         if (domains != null && domains.length > 0) {
-            for (String domain : domains) {
-                if (url.contains(domain)) {
+            for (URI domain : domains) {
+                if (url.getHost().equals(domain.toString())) {
                     return true;
                 }
             }
